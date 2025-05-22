@@ -1,5 +1,9 @@
 import 'package:get/get.dart';
 
+import '../modules/Alarm/bindings/alarm_binding.dart';
+import '../modules/Alarm/views/alarm_view.dart';
+import '../modules/Bedtime/bindings/bedtime_binding.dart';
+import '../modules/Bedtime/views/bedtime_view.dart';
 import '../modules/daily/bindings/daily_binding.dart';
 import '../modules/daily/views/daily_view.dart';
 import '../modules/discover/bindings/discover_binding.dart';
@@ -51,12 +55,27 @@ class AppPages {
     GetPage(
       name: _Paths.DAILY,
       page: () => const DailyView(),
-      binding: DailyBinding(),
+      binding: DiscoverBinding(),
     ),
     GetPage(
       name: _Paths.STATISTIC,
       page: () => const StatisticView(),
       binding: StatisticBinding(),
+    ),
+    GetPage(
+        name: AppRoutes.home, page: () => HomeView(), binding: HomeBinding()),
+    GetPage(
+        name: AppRoutes.bedtime,
+        page: () => BedtimeView(),
+        binding: BedtimeBinding()),
+    GetPage(
+        name: AppRoutes.alarm,
+        page: () => AlarmView(),
+        binding: AlarmBinding()),
+    GetPage(
+      name: _Paths.ALARM,
+      page: () => const AlarmView(),
+      binding: AlarmBinding(),
     ),
   ];
 }

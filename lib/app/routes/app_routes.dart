@@ -10,6 +10,8 @@ abstract class Routes {
   static const DISCOVER = _Paths.DISCOVER;
   static const DAILY = _Paths.DAILY;
   static const STATISTIC = _Paths.STATISTIC;
+  static const BEDTIME = _Paths.BEDTIME;
+  static const ALARM = _Paths.ALARM;
 }
 
 abstract class _Paths {
@@ -21,4 +23,12 @@ abstract class _Paths {
   static const DISCOVER = '/discover';
   static const DAILY = '/daily';
   static const STATISTIC = '/statistic';
+  static const BEDTIME = '/bedtime';
+  static const ALARM = '/alarm';
+}
+
+abstract class AppRoutes {
+  static const home = '/';
+  static const bedtime = '/bedtime';
+  static const alarm = '/alarm';
 }
