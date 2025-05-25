@@ -44,7 +44,7 @@ class AppPages {
     ),
     GetPage(
       name: _Paths.SLEEPTRACKER,
-      page: () => const SleeptrackerView(),
+      page: () =>  SleeptrackerView(),
       binding: SleeptrackerBinding(),
     ),
     GetPage(

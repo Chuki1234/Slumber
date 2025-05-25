@@ -10,25 +10,21 @@ import '../../discover/views/discover_view.dart';
 import '../../daily/views/daily_view.dart';
 import '../../statistic/views/statistic_view.dart';
 
-
 class LayoutBinding extends Bindings {
   @override
   void dependencies() {
     Get.lazyPut<LayoutController>(
-          () => LayoutController(pages: const [
+          () => LayoutController(pages: [
         SleeptrackerView(),
         DiscoverView(),
         DailyView(),
         StatisticView(),
       ]),
     );
-    Get.lazyPut<SleeptrackerController>(() => SleeptrackerController());
+    Get.lazyPut<SleepTrackerController>(() => SleepTrackerController());
     Get.lazyPut<DiscoverController>(() => DiscoverController());
     Get.lazyPut<DailyController>(() => DailyController());
     Get.lazyPut<StatisticController>(() => StatisticController());
     Get.lazyPut<AlarmController>(() => AlarmController());
-
-
-
   }
 }
