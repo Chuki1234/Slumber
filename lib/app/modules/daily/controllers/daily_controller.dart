@@ -19,91 +19,97 @@ class DailyController extends GetxController {
 
   final date = ''.obs;
   final time = ''.obs;
+  final selectedDate = Rx<DateTime>(DateTime.now());
 
   @override
   void onInit() {
     super.onInit();
-    final now = DateTime.now();
+    updateDateTime();
+    ever(selectedDate, (_) => updateDateTime());
+    loadFromLocal();
+  }
+
+  void updateDateTime() {
+    final now = selectedDate.value;
     date.value = DateFormat('MMMM d, yyyy').format(now);
     time.value = DateFormat('jm').format(now);
-    loadFromLocal();
   }
 
   void openDialog(BuildContext context) {
     diaryController.text = diaryText.value;
     showDialog(
       context: context,
-      builder: (context) =>
-          Dialog(
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16)),
-            child: Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: const Color(0xFF2B1545),
-                borderRadius: BorderRadius.circular(16),
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16)),
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: const Color(0xFF2B1545),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Text("Diary", style: TextStyle(color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold)),
+              const SizedBox(height: 12),
+              TextField(
+                controller: diaryController,
+                maxLines: 5,
+                style: const TextStyle(color: Colors.white),
+                decoration: InputDecoration(
+                  hintText: 'Write something to record this special day...',
+                  hintStyle: const TextStyle(color: Colors.white54),
+                  filled: true,
+                  fillColor: const Color(0xFF3C2A5D),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                ),
               ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text("Diary", style: TextStyle(color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 12),
-                  TextField(
-                    controller: diaryController,
-                    maxLines: 5,
-                    style: const TextStyle(color: Colors.white),
-                    decoration: InputDecoration(
-                      hintText: 'Write something to record this special day...',
-                      hintStyle: const TextStyle(color: Colors.white54),
-                      filled: true,
-                      fillColor: const Color(0xFF3C2A5D),
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12)),
+                  Expanded(
+                    child: TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: TextButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(24)),
+                      ),
+                      child: const Text(
+                          "Cancel", style: TextStyle(color: Colors.black)),
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          style: TextButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(24)),
-                          ),
-                          child: const Text(
-                              "Cancel", style: TextStyle(color: Colors.black)),
-                        ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: TextButton(
+                      onPressed: () {
+                        saveDiaryNote();
+                        Navigator.pop(context);
+                      },
+                      style: TextButton.styleFrom(
+                        backgroundColor: Colors.lightBlue,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(24)),
                       ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: TextButton(
-                          onPressed: () {
-                            saveDiaryNote();
-                            Navigator.pop(context);
-                          },
-                          style: TextButton.styleFrom(
-                            backgroundColor: Colors.lightBlue,
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(24)),
-                          ),
-                          child: const Text(
-                              "Save", style: TextStyle(color: Colors.white)),
-                        ),
-                      ),
-                    ],
-                  )
+                      child: const Text(
+                          "Save", style: TextStyle(color: Colors.white)),
+                    ),
+                  ),
                 ],
-              ),
-            ),
+              )
+            ],
           ),
+        ),
+      ),
     );
   }
+
   Future<void> saveDiaryHistory() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('diary_history', jsonEncode(diaryHistory));
@@ -117,9 +123,9 @@ class DailyController extends GetxController {
       diaryHistory.assignAll(map.map((k, v) => MapEntry(k, v.toString())));
     }
   }
+
   Future<void> saveDiaryNote() async {
-    final now = DateTime.now();
-    final key = DateFormat('yyyy-MM-dd').format(now);
+    final key = DateFormat('yyyy-MM-dd').format(selectedDate.value);
     diaryText.value = diaryController.text;
     diaryHistory[key] = diaryText.value;
     await saveToLocal();
