@@ -1,10 +1,40 @@
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../sleeptracker/controllers/sleeptracker_controller.dart';
 import '../controllers/daily_controller.dart';
 
 class DailyView extends GetView<DailyController> {
-  const DailyView({super.key});
+  final sleepController = Get.find<SleepTrackerController>();
+  DailyView({super.key});
+
+  String calculateSleepDuration(TimeOfDay bedTime, TimeOfDay alarmStart) {
+    final bedTimeInMinutes = bedTime.hour * 60 + bedTime.minute;
+    final alarmTimeInMinutes = alarmStart.hour * 60 + alarmStart.minute;
+
+    int durationInMinutes;
+    if (alarmTimeInMinutes >= bedTimeInMinutes) {
+      durationInMinutes = alarmTimeInMinutes - bedTimeInMinutes;
+    } else {
+      durationInMinutes = (24 * 60 - bedTimeInMinutes) + alarmTimeInMinutes;
+    }
+
+    final hours = durationInMinutes ~/ 60;
+    final minutes = durationInMinutes % 60;
+    return '${hours}h ${minutes}m';
+  }
+
+  String getGreeting() {
+    final hour = DateTime.now().hour;
+    if (hour >= 5 && hour < 12) {
+      return 'Good morning';
+    } else if (hour >= 12 && hour < 18) {
+      return 'Good afternoon';
+    } else if (hour >= 18 && hour < 22) {
+      return 'Good evening';
+    } else {
+      return 'Good night';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,11 +60,6 @@ class DailyView extends GetView<DailyController> {
                     controller.date.value,
                     style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold),
                   )),
-                  const SizedBox(height: 16),
-                  Obx(() => Text(
-                    'Good evening, hope you have a nice day <3\n${controller.time.value}',
-                    style: const TextStyle(color: Colors.white70, fontSize: 16),
-                  )),
                   const SizedBox(height: 32),
                   const Text('Sleep goal', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600)),
                   const SizedBox(height: 12),
@@ -49,18 +74,34 @@ class DailyView extends GetView<DailyController> {
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
-                            children: const [
-                              Text('🛏 Bedtime 09:30', style: TextStyle(color: Colors.white)),
-                              SizedBox(height: 4),
-                              Text('\u23F0 Alarm 04:40 - 05:00', style: TextStyle(color: Colors.white)),
+                            children: [
+                              Obx(() => Text(
+                                '🛏 Bedtime ${sleepController.formatTime(sleepController.bedTime.value)}',
+                                style: const TextStyle(color: Colors.white),
+                              )),
+                              const SizedBox(height: 7),
+                              Obx(() => Text(
+                                '\u23F0 Alarm ${sleepController.formatTime(sleepController.alarmStart.value)}',
+                                style: const TextStyle(color: Colors.white),
+                              )),
                             ],
                           ),
                         ),
                         Column(
                           children: [
                             const Text('⏰ Goal', style: TextStyle(color: Colors.white54)),
-                            const SizedBox(height: 4),
-                            const Text('19 h 30 min', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+                            const SizedBox(height: 7),
+                            Obx(() => Text(
+                              calculateSleepDuration(
+                                sleepController.bedTime.value,
+                                sleepController.alarmStart.value,
+                              ),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            )),
                             const SizedBox(height: 8),
                             ElevatedButton(
                               onPressed: () {},
@@ -68,7 +109,7 @@ class DailyView extends GetView<DailyController> {
                                 backgroundColor: Colors.lightBlue,
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                               ),
-                              child: const Text('Track now'),
+                              child: const Text('Track now', style: TextStyle(color: Colors.deepPurpleAccent), textAlign: TextAlign.center),
                             )
                           ],
                         )
@@ -117,7 +158,7 @@ class DailyView extends GetView<DailyController> {
                             ),
                           )),
                         ),
-                        const Icon(Icons.edit, color: Colors.white38)
+                        const Icon(Icons.edit, color: Colors.white)
                       ],
                     ),
                   ),
