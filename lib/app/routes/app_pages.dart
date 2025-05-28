@@ -54,7 +54,7 @@ class AppPages {
     ),
     GetPage(
       name: _Paths.DAILY,
-      page: () => const DailyView(),
+      page: () => DailyView(),
       binding: DiscoverBinding(),
     ),
     GetPage(
