@@ -14,6 +14,8 @@ import '../modules/layout/bindings/layout_binding.dart';
 import '../modules/layout/views/layout_view.dart';
 import '../modules/login/bindings/login_binding.dart';
 import '../modules/login/views/login_view.dart';
+import '../modules/profile/bindings/profile_binding.dart';
+import '../modules/profile/views/profile_view.dart';
 import '../modules/sleeptracker/bindings/sleeptracker_binding.dart';
 import '../modules/sleeptracker/views/sleeptracker_view.dart';
 import '../modules/statistic/bindings/statistic_binding.dart';
@@ -44,7 +46,7 @@ class AppPages {
     ),
     GetPage(
       name: _Paths.SLEEPTRACKER,
-      page: () =>  SleeptrackerView(),
+      page: () => SleeptrackerView(),
       binding: SleeptrackerBinding(),
     ),
     GetPage(
@@ -76,6 +78,11 @@ class AppPages {
       name: _Paths.ALARM,
       page: () => const AlarmView(),
       binding: AlarmBinding(),
+    ),
+    GetPage(
+      name: _Paths.PROFILE,
+      page: () => const ProfileView(),
+      binding: ProfileBinding(),
     ),
   ];
 }

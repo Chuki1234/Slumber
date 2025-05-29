@@ -1,6 +1,8 @@
 import 'package:get/get.dart';
 import 'package:slumber/app/modules/daily/controllers/daily_controller.dart';
 import 'package:slumber/app/modules/discover/controllers/discover_controller.dart';
+import 'package:slumber/app/modules/profile/controllers/profile_controller.dart';
+import 'package:slumber/app/modules/profile/views/profile_view.dart';
 import 'package:slumber/app/modules/statistic/controllers/statistic_controller.dart';
 import '../../Alarm/controllers/alarm_controller.dart';
 import '../../sleeptracker/controllers/sleeptracker_controller.dart';
@@ -19,6 +21,7 @@ class LayoutBinding extends Bindings {
         DiscoverView(),
         DailyView(),
         StatisticView(),
+        ProfileView(),
       ]),
     );
     Get.lazyPut<SleepTrackerController>(() => SleepTrackerController());
@@ -26,5 +29,6 @@ class LayoutBinding extends Bindings {
     Get.lazyPut<DailyController>(() => DailyController());
     Get.lazyPut<StatisticController>(() => StatisticController());
     Get.lazyPut<AlarmController>(() => AlarmController());
+    Get.lazyPut<ProfileController>(() => ProfileController());
   }
 }

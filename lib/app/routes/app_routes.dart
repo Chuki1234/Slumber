@@ -13,6 +13,7 @@ abstract class Routes {
   static const BEDTIME = _Paths.BEDTIME;
   static const ALARM = _Paths.ALARM;
   static const CUSTOM_SLEEP_TRACKER = _Paths.CUSTOM_SLEEP_TRACKER;
+  static const PROFILE = _Paths.PROFILE;
 }
 
 abstract class _Paths {
@@ -27,6 +28,7 @@ abstract class _Paths {
   static const BEDTIME = '/bedtime';
   static const ALARM = '/alarm';
   static const CUSTOM_SLEEP_TRACKER = '/custom-sleep-tracker';
+  static const PROFILE = '/profile';
 }
 
 abstract class AppRoutes {

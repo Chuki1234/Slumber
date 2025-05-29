@@ -38,7 +38,11 @@ class LayoutView extends GetView<LayoutController> {
               activeIcon: Icon(Icons.pie_chart),
               label: 'Statistics',
             ),
-          ],
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person_outlined),
+            activeIcon: Icon(Icons.person),
+            label: 'Profile',
+          )],
         ),
       ),
     );
