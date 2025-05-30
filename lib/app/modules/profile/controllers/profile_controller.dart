@@ -1,23 +1,11 @@
 import 'package:get/get.dart';
 
 class ProfileController extends GetxController {
-  //TODO: Implement ProfileController
+  final userName = 'User_name'.obs;
+  final avatarPath = 'assets/images/avatar.png'.obs;
 
-  final count = 0.obs;
-  @override
-  void onInit() {
-    super.onInit();
+  void logout() {
+    // Logic xử lý logout
+    Get.offAllNamed('/login'); // hoặc Get.offAll(() => const LoginView());
   }
-
-  @override
-  void onReady() {
-    super.onReady();
-  }
-
-  @override
-  void onClose() {
-    super.onClose();
-  }
-
-  void increment() => count.value++;
 }
