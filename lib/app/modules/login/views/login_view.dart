@@ -24,54 +24,56 @@ class LoginView extends GetView<LoginController> {
 
             /// 🌀 Logo Slumber
             Image.asset(
-              'assets/images/logo.png',
-              width: 220, // ← phóng to
+              'assets/images/Slumber_logo.png',
+              width: 380, // ← phóng to
             ),
 
             const Spacer(flex: 3),
 
             /// 🔵 Nút Google
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 32),
-              height: 50,
-              decoration: BoxDecoration(
-                color: const Color(0xFF1A3A85),
-                borderRadius: BorderRadius.circular(30),
-              ),
-              child: InkWell(
-                borderRadius: BorderRadius.circular(30),
-                onTap: controller.loginWithGoogle,
-                child: Stack(
-                  children: [
-                    /// 📌 Text luôn nằm giữa
-                    const Center(
-                      child: Text(
-                        'Continue with Google',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
+            Transform.translate(
+              offset: const Offset(0, -180), // Move up by 20 pixels
+              child: Container(
+                margin: const EdgeInsets.symmetric(horizontal: 32),
+                height: 50,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1A3A85),
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(30),
+                  onTap: controller.loginWithGoogle,
+                  child: Stack(
+                    children: [
+                      /// 📌 Text luôn nằm giữa
+                      const Center(
+                        child: Text(
+                          'Continue with Google',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
-                    ),
 
-                    /// 📌 Icon Google sát trái
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 16),
-                        child: Image.asset(
-                          'assets/images/google.png',
-                          width: 24,
-                          height: 24,
+                      /// 📌 Icon Google sát trái
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 16),
+                          child: Image.asset(
+                            'assets/images/google.png',
+                            width: 24,
+                            height: 24,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
-
 
             const SizedBox(height: 50),
           ],
