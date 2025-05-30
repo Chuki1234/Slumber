@@ -15,7 +15,15 @@ class DailyView extends GetView<DailyController> {
     if (durationInMinutes < 0) durationInMinutes += 1440;
     final hours = durationInMinutes ~/ 60;
     final minutes = durationInMinutes % 60;
-    return '${hours}h ${minutes.toString().padLeft(2, '0')}min';
+    return minutes == 0
+        ? '${hours}:00'
+        : '${hours}:${minutes.toString().padLeft(2, '0')}';
+
+  }
+  String _formatTime24(TimeOfDay t) {
+    return t.minute == 0
+        ? '${t.hour}:00'
+        : '${t.hour}:${t.minute.toString().padLeft(2, '0')}';
   }
 
   List<Widget> buildDateSelector() {
@@ -167,13 +175,15 @@ class DailyView extends GetView<DailyController> {
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
+                            /// Trái
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Obx(() => Text(
-                                    '🛏 Bedtime ${sleepController.formatTime(sleepController.bedTime.value)}',
+                                    '🛏 Bedtime ${_formatTime24(sleepController.bedTime.value)}',
                                     style: const TextStyle(
                                       color: Colors.white,
                                       fontSize: 16,
@@ -182,7 +192,7 @@ class DailyView extends GetView<DailyController> {
                                   )),
                                   const SizedBox(height: 10),
                                   Obx(() => Text(
-                                    '⏰ Alarm ${sleepController.formatTime(sleepController.alarmStart.value)}',
+                                    '⏰ Alarm ${_formatTime24(sleepController.alarmStart.value)}',
                                     style: const TextStyle(
                                       color: Colors.white,
                                       fontSize: 16,
@@ -192,6 +202,8 @@ class DailyView extends GetView<DailyController> {
                                 ],
                               ),
                             ),
+
+                            /// Line chính giữa
                             Container(
                               width: 1,
                               height: 60,
@@ -199,36 +211,39 @@ class DailyView extends GetView<DailyController> {
                               margin: const EdgeInsets.symmetric(horizontal: 16),
                             ),
 
-                            /// 🎯 Sleep Goal
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                const Text(
-                                  '⏰ Goal',
-                                  style: TextStyle(
-                                    color: Colors.white54,
-                                    fontSize: 16,
-                                    fontFamily: 'Roboto',
+                            /// Phải
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  const Text(
+                                    '⏰ Goal',
+                                    style: TextStyle(
+                                      color: Colors.white54,
+                                      fontSize: 16,
+                                      fontFamily: 'Roboto',
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(height: 10),
-                                Obx(() => Text(
-                                  calculateSleepDuration(
-                                    sleepController.bedTime.value,
-                                    sleepController.alarmStart.value,
-                                  ),
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                    fontFamily: 'Roboto',
-                                  ),
-                                )),
-                              ],
+                                  const SizedBox(height: 10),
+                                  Obx(() => Text(
+                                    calculateSleepDuration(
+                                      sleepController.bedTime.value,
+                                      sleepController.alarmStart.value,
+                                    ),
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: 'Roboto',
+                                    ),
+                                  )),
+                                ],
+                              ),
                             ),
                           ],
                         ),
                       ),
+
                       const SizedBox(height: 28),
                       const Text(
                         'Diary',

@@ -7,6 +7,8 @@ class SleeptrackerView extends GetView<SleepTrackerController> {
   SleeptrackerView({super.key});
 
   int? _draggingHandle; // 0 = bedTime, 1 = alarmStart
+  double? _startAngle;
+
   static const int _minDiffMinutes = 180; // 1/8 vòng = 3 giờ
 
   @override
@@ -52,8 +54,11 @@ class SleeptrackerView extends GetView<SleepTrackerController> {
                       () => GestureDetector(
                     onPanStart: (d) => _onPanStart(d.localPosition, size),
                     onPanUpdate: (d) => _onPanUpdate(d.localPosition, size),
-                    onPanEnd: (_) => _draggingHandle = null,
-                    child: CustomPaint(
+                        onPanEnd: (_) {
+                          _draggingHandle = null;
+                          _startAngle = null;
+                        },
+                        child: CustomPaint(
                       size: const Size(size, size),
                       painter: _SleepClockPainter(
                         bedTime: controller.bedTime.value,
@@ -154,17 +159,45 @@ class SleeptrackerView extends GetView<SleepTrackerController> {
     Offset _pos(TimeOfDay t) => center + Offset(r * math.cos(_timeToAngle(t)), r * math.sin(_timeToAngle(t)));
     final distBed = (p - _pos(controller.bedTime.value)).distance;
     final distAlarm = (p - _pos(controller.alarmStart.value)).distance;
+
     if (distBed < 40 && distBed < distAlarm) {
       _draggingHandle = 0;
     } else if (distAlarm < 40) {
       _draggingHandle = 1;
     }
-    if (_draggingHandle != null) _onPanUpdate(p, size);
+
+    if (_draggingHandle != null) {
+      _onPanUpdate(p, size);
+    } else {
+      _startAngle = math.atan2(p.dy - center.dy, p.dx - center.dx);
+    }
   }
 
   void _onPanUpdate(Offset p, double size) {
-    if (_draggingHandle == null) return;
     final center = Offset(size / 2, size / 2);
+
+    if (_draggingHandle == null) {
+      if (_startAngle == null) return;
+
+      // 🎯 Di chuyển toàn bộ clock
+      final currentAngle = math.atan2(p.dy - center.dy, p.dx - center.dx);
+      final deltaAngle = currentAngle - _startAngle!;
+      _startAngle = currentAngle;
+
+      // Chuyển đổi sang phút (1 vòng = 1440 phút)
+      final deltaM = ((deltaAngle / (2 * math.pi)) * 1440).round();
+
+      void shiftTime(Rx<TimeOfDay> time) {
+        final totalM = (time.value.hour * 60 + time.value.minute + deltaM + 1440) % 1440;
+        time.value = TimeOfDay(hour: totalM ~/ 60, minute: totalM % 60);
+      }
+
+      shiftTime(controller.bedTime);
+      shiftTime(controller.alarmStart);
+      return;
+    }
+
+    // 🟣 Di chuyển 1 trong 2 handle
     final ang = ((math.atan2(p.dy - center.dy, p.dx - center.dx) + 2 * math.pi) % (2 * math.pi) + math.pi / 2) % (2 * math.pi);
     final newM = ((ang / (2 * math.pi)) * 1440).round() % 1440;
     final newT = TimeOfDay(hour: newM ~/ 60, minute: newM % 60);
@@ -184,6 +217,7 @@ class SleeptrackerView extends GetView<SleepTrackerController> {
       controller.bedTime.value = pushedT;
     }
   }
+
 
   double _timeToAngle(TimeOfDay t) => (t.hour * 60 + t.minute) / 1440 * 2 * math.pi - math.pi / 2;
 }
