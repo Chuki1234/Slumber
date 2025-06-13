@@ -1,6 +1,10 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../Alarm/controllers/alarm_controller.dart';
+import '../../Alarm/views/alarm_view.dart';
+import '../../Bedtime/controllers/bedtime_controller.dart';
+import '../../Bedtime/views/bedtime_view.dart';
 import '../controllers/sleeptracker_controller.dart';
 
 class SleeptrackerView extends GetView<SleepTrackerController> {
@@ -54,11 +58,11 @@ class SleeptrackerView extends GetView<SleepTrackerController> {
                       () => GestureDetector(
                     onPanStart: (d) => _onPanStart(d.localPosition, size),
                     onPanUpdate: (d) => _onPanUpdate(d.localPosition, size),
-                        onPanEnd: (_) {
-                          _draggingHandle = null;
-                          _startAngle = null;
-                        },
-                        child: CustomPaint(
+                    onPanEnd: (_) {
+                      _draggingHandle = null;
+                      _startAngle = null;
+                    },
+                    child: CustomPaint(
                       size: const Size(size, size),
                       painter: _SleepClockPainter(
                         bedTime: controller.bedTime.value,
@@ -77,13 +81,14 @@ class SleeptrackerView extends GetView<SleepTrackerController> {
                         time: controller.bedTime,
                         color: Colors.white,
                       ),
-                      const SizedBox(height: 16),
-                      const Divider(color: Colors.white,thickness: 2),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 5),
+                      const Divider(color: Colors.white, thickness: 2),
+                      const SizedBox(height: 5),
                       _buildTimeRow(
                         label: 'Alarm',
                         time: controller.alarmStart,
                         color: Colors.white,
+                        updatedTime: controller.updatedAlarmStart,
                       ),
                     ],
                   ),
@@ -93,12 +98,21 @@ class SleeptrackerView extends GetView<SleepTrackerController> {
                   onPressed: () {},
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.deepPurpleAccent,
-                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 16),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 40,
+                      vertical: 16,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
                   ),
                   child: const Text(
                     'Sleep Now',
-                    style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ],
@@ -109,54 +123,114 @@ class SleeptrackerView extends GetView<SleepTrackerController> {
     );
   }
 
-  // ------------------------ UI helpers --------------------------------------
-  String _formatHM(TimeOfDay t) => '${t.hour}:${t.minute.toString().padLeft(2, '0')}';
+  String _formatHM(TimeOfDay t) =>
+      '${t.hour}:${t.minute.toString().padLeft(2, '0')}';
 
   Widget _buildTimeRow({
     required String label,
     required Rx<TimeOfDay> time,
     required Color color,
+    Rx<TimeOfDay?>? updatedTime,
   }) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        // Label
-        Text(
-          label,
-          style: TextStyle(
-            color: color,
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
+    return GestureDetector(
+      onTap: () {
+        if (label == 'Bedtime') {
+          Get.put(BedtimeController());
+          Get.to(() => const BedtimeView());
+        } else if (label == 'Alarm') {
+          Get.put(AlarmController());
+          Get.to(() => AlarmView());
+        }
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Icon(
+                label == 'Alarm' ? Icons.notifications : Icons.nights_stay,
+                color: label == 'Alarm' ? Colors.amber : Colors.indigo[200],
+                size: 24,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                label,
+                style: TextStyle(
+                  color: color,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const Spacer(),
+              Obx(() {
+                final base = time.value;
+                final offset = label == 'Alarm' ? controller.smartAlarmOffsetMinutes.value : 0;
+                final totalMin = base.hour * 60 + base.minute + offset;
+                final extended = TimeOfDay(
+                  hour: (totalMin ~/ 60) % 24,
+                  minute: totalMin % 60,
+                );
+                final text = label == 'Alarm'
+                    ? '${_formatHM(base)} - ${_formatHM(extended)}'
+                    : _formatHM(base);
+                return Text(
+                  text,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500,
+                  ),
+                );
+              }),
+              IconButton(
+                icon: const Icon(Icons.edit, size: 20, color: Colors.white),
+                onPressed: () {
+                  if (label == 'Bedtime') {
+                    Get.put(BedtimeController());
+                    Get.to(() => const BedtimeView());
+                  } else if (label == 'Alarm') {
+                    Get.put(AlarmController());
+                    Get.to(() => const AlarmView());
+                  }
+                },
+              ),
+            ],
           ),
-        ),
-
-        // Thời gian + icon edit
-        Row(
-          children: [
-            Obx(
-                  () => Text(
-                _formatHM(time.value),
-                style: const TextStyle(color: Colors.white, fontSize: 18),
+          if (updatedTime != null && updatedTime.value != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Updated Alarm',
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  Obx(
+                        () => Text(
+                      _formatHM(updatedTime.value!),
+                      style: const TextStyle(color: Colors.white70, fontSize: 16),
+                    ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(width: 8),
-            IconButton(
-              icon: const Icon(Icons.edit, size: 20, color: Colors.white),
-              onPressed: () {
-                // TODO: mở dialog chỉnh giờ
-              },
-            ),
-          ],
-        ),
-      ],
+        ],
+      ),
     );
   }
 
-  // ------------------------ Drag logic --------------------------------------
   void _onPanStart(Offset p, double size) {
     final center = Offset(size / 2, size / 2);
     final r = size / 2 * 0.8;
-    Offset _pos(TimeOfDay t) => center + Offset(r * math.cos(_timeToAngle(t)), r * math.sin(_timeToAngle(t)));
+    Offset _pos(TimeOfDay t) =>
+        center +
+            Offset(r * math.cos(_timeToAngle(t)), r * math.sin(_timeToAngle(t)));
     final distBed = (p - _pos(controller.bedTime.value)).distance;
     final distAlarm = (p - _pos(controller.alarmStart.value)).distance;
 
@@ -179,16 +253,15 @@ class SleeptrackerView extends GetView<SleepTrackerController> {
     if (_draggingHandle == null) {
       if (_startAngle == null) return;
 
-      // 🎯 Di chuyển toàn bộ clock
       final currentAngle = math.atan2(p.dy - center.dy, p.dx - center.dx);
       final deltaAngle = currentAngle - _startAngle!;
       _startAngle = currentAngle;
 
-      // Chuyển đổi sang phút (1 vòng = 1440 phút)
       final deltaM = ((deltaAngle / (2 * math.pi)) * 1440).round();
 
       void shiftTime(Rx<TimeOfDay> time) {
-        final totalM = (time.value.hour * 60 + time.value.minute + deltaM + 1440) % 1440;
+        final totalM =
+            (time.value.hour * 60 + time.value.minute + deltaM + 1440) % 1440;
         time.value = TimeOfDay(hour: totalM ~/ 60, minute: totalM % 60);
       }
 
@@ -197,17 +270,25 @@ class SleeptrackerView extends GetView<SleepTrackerController> {
       return;
     }
 
-    // 🟣 Di chuyển 1 trong 2 handle
-    final ang = ((math.atan2(p.dy - center.dy, p.dx - center.dx) + 2 * math.pi) % (2 * math.pi) + math.pi / 2) % (2 * math.pi);
+    final ang =
+        ((math.atan2(p.dy - center.dy, p.dx - center.dx) + 2 * math.pi) %
+            (2 * math.pi) +
+            math.pi / 2) %
+            (2 * math.pi);
     final newM = ((ang / (2 * math.pi)) * 1440).round() % 1440;
     final newT = TimeOfDay(hour: newM ~/ 60, minute: newM % 60);
-    final other = _draggingHandle == 0 ? controller.alarmStart.value : controller.bedTime.value;
+    final other =
+    _draggingHandle == 0
+        ? controller.alarmStart.value
+        : controller.bedTime.value;
     final otherM = other.hour * 60 + other.minute;
     final cw = (otherM - newM + 1440) % 1440;
     final ccw = 1440 - cw;
     int pushed = otherM;
-    if (cw < _minDiffMinutes) pushed = (newM + _minDiffMinutes) % 1440;
-    else if (ccw < _minDiffMinutes) pushed = (newM - _minDiffMinutes + 1440) % 1440;
+    if (cw < _minDiffMinutes)
+      pushed = (newM + _minDiffMinutes) % 1440;
+    else if (ccw < _minDiffMinutes)
+      pushed = (newM - _minDiffMinutes + 1440) % 1440;
     final pushedT = TimeOfDay(hour: pushed ~/ 60, minute: pushed % 60);
     if (_draggingHandle == 0) {
       controller.bedTime.value = newT;
@@ -218,8 +299,8 @@ class SleeptrackerView extends GetView<SleepTrackerController> {
     }
   }
 
-
-  double _timeToAngle(TimeOfDay t) => (t.hour * 60 + t.minute) / 1440 * 2 * math.pi - math.pi / 2;
+  double _timeToAngle(TimeOfDay t) =>
+      (t.hour * 60 + t.minute) / 1440 * 2 * math.pi - math.pi / 2;
 }
 
 class _SleepClockPainter extends CustomPainter {
@@ -233,18 +314,25 @@ class _SleepClockPainter extends CustomPainter {
     final innerR = s.width / 2 * 0.75;
     final arcR = innerR + 35;
 
-    // Ring stroke background
-    c.drawCircle(ctr, arcR, Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 30
-      ..color = const Color(0xFF384056));
+    c.drawCircle(
+      ctr,
+      arcR,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 30
+        ..color = const Color(0xFF384056),
+    );
 
-    // Inner fill
     c.drawCircle(ctr, arcR - 15, Paint()..color = const Color(0xFF262D3A));
 
-    // Ticks
-    final hourP = Paint()..color = Colors.white..strokeWidth = 2;
-    final minP = Paint()..color = Colors.white54..strokeWidth = 1;
+    final hourP =
+    Paint()
+      ..color = Colors.white
+      ..strokeWidth = 2;
+    final minP =
+    Paint()
+      ..color = Colors.white54
+      ..strokeWidth = 1;
     final hourLen = innerR * 0.12;
     final minLen = innerR * 0.08;
     for (int i = 0; i < 60; i++) {
@@ -252,53 +340,79 @@ class _SleepClockPainter extends CustomPainter {
       final cosA = math.cos(a);
       final sinA = math.sin(a);
       final p1 = ctr + Offset(innerR * cosA, innerR * sinA);
-      final p2 = ctr + Offset((innerR - (i % 5 == 0 ? hourLen : minLen)) * cosA,
-          (innerR - (i % 5 == 0 ? hourLen : minLen)) * sinA);
+      final p2 =
+          ctr +
+              Offset(
+                (innerR - (i % 5 == 0 ? hourLen : minLen)) * cosA,
+                (innerR - (i % 5 == 0 ? hourLen : minLen)) * sinA,
+              );
       c.drawLine(p1, p2, i % 5 == 0 ? hourP : minP);
     }
 
-    // Hour labels
     const lbls = ['0', '6', '12', '18'];
     for (int i = 0; i < 4; i++) {
       final a = i * math.pi / 2 - math.pi / 2;
-      final pos = ctr + Offset((innerR - hourLen - 10) * math.cos(a),
-          (innerR - hourLen - 10) * math.sin(a));
+      final pos =
+          ctr +
+              Offset(
+                (innerR - hourLen - 15) * math.cos(a),
+                (innerR - hourLen - 15) * math.sin(a),
+              );
       final tp = TextPainter(
-        text: TextSpan(text: lbls[i], style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+        text: TextSpan(
+          text: lbls[i],
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         textDirection: TextDirection.ltr,
       )..layout();
       tp.paint(c, pos - Offset(tp.width / 2, tp.height / 2));
     }
 
-    // Sleep arc
     final startA = _timeToAngle(bedTime);
-    final endA   = _timeToAngle(alarmStart);
-    double sweep = (endA - startA) % (2*math.pi);
-    if (sweep < 0) sweep += 2*math.pi;
-    c.drawArc(Rect.fromCircle(center: ctr, radius: arcR), startA, sweep, false,
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 30
-          ..strokeCap = StrokeCap.round
-          ..color = const Color(0xFF6C5DD3)
+    final endA = _timeToAngle(alarmStart);
+    double sweep = (endA - startA) % (2 * math.pi);
+    if (sweep < 0) sweep += 2 * math.pi;
+    c.drawArc(
+      Rect.fromCircle(center: ctr, radius: arcR),
+      startA,
+      sweep,
+      false,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 30
+        ..strokeCap = StrokeCap.round
+        ..color = const Color(0xFF6C5DD3),
     );
 
-    // Handles smaller
     void drawH(IconData ic, double ang) {
       final pos = ctr + Offset(arcR * math.cos(ang), arcR * math.sin(ang));
       c.drawCircle(pos, 16, Paint()..color = const Color(0xFF262D3A));
       final tp = TextPainter(
-        text: TextSpan(text: String.fromCharCode(ic.codePoint), style: TextStyle(fontSize: 16, color: Colors.yellow, fontFamily: ic.fontFamily)),
+        text: TextSpan(
+          text: String.fromCharCode(ic.codePoint),
+          style: TextStyle(
+            fontSize: 16,
+            color: Colors.yellow,
+            fontFamily: ic.fontFamily,
+          ),
+        ),
         textDirection: TextDirection.ltr,
       )..layout();
       tp.paint(c, pos - Offset(tp.width / 2, tp.height / 2));
     }
+
     drawH(Icons.nights_stay_rounded, startA);
     drawH(Icons.wb_sunny, endA);
   }
 
-  double _timeToAngle(TimeOfDay t) => (t.hour * 60 + t.minute) / 1440 * 2 * math.pi - math.pi / 2;
+  double _timeToAngle(TimeOfDay t) =>
+      (t.hour * 60 + t.minute) / 1440 * 2 * math.pi - math.pi / 2;
 
   @override
-  bool shouldRepaint(covariant _SleepClockPainter old) => old.bedTime != bedTime || old.alarmStart != alarmStart;
+  bool shouldRepaint(covariant _SleepClockPainter old) =>
+      old.bedTime != bedTime || old.alarmStart != alarmStart;
 }
