@@ -14,6 +14,7 @@ abstract class Routes {
   static const ALARM = _Paths.ALARM;
   static const CUSTOM_SLEEP_TRACKER = _Paths.CUSTOM_SLEEP_TRACKER;
   static const PROFILE = _Paths.PROFILE;
+  static const TRACKER = _Paths.TRACKER;
 }
 
 abstract class _Paths {
@@ -29,6 +30,7 @@ abstract class _Paths {
   static const ALARM = '/alarm';
   static const CUSTOM_SLEEP_TRACKER = '/custom-sleep-tracker';
   static const PROFILE = '/profile';
+  static const TRACKER = '/tracker';
 }
 
 abstract class AppRoutes {

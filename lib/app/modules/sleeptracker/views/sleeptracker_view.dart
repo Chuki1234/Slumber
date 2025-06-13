@@ -5,6 +5,7 @@ import '../../Alarm/controllers/alarm_controller.dart';
 import '../../Alarm/views/alarm_view.dart';
 import '../../Bedtime/controllers/bedtime_controller.dart';
 import '../../Bedtime/views/bedtime_view.dart';
+import '../../Tracker/views/tracker_view.dart';
 import '../controllers/sleeptracker_controller.dart';
 
 class SleeptrackerView extends GetView<SleepTrackerController> {
@@ -94,24 +95,28 @@ class SleeptrackerView extends GetView<SleepTrackerController> {
                   ),
                 ),
                 const SizedBox(height: 32),
-                ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.deepPurpleAccent,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 40,
-                      vertical: 16,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                  ),
-                  child: const Text(
-                    'Sleep Now',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Get.to(() => TrackerView()); // hoặc controller.sleepStart()
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        foregroundColor: Colors.black,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: const StadiumBorder(),
+                        elevation: 0,
+                      ),
+                      child: const Text(
+                        'Sleep now',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
                 ),

@@ -4,6 +4,8 @@ import '../modules/Alarm/bindings/alarm_binding.dart';
 import '../modules/Alarm/views/alarm_view.dart';
 import '../modules/Bedtime/bindings/bedtime_binding.dart';
 import '../modules/Bedtime/views/bedtime_view.dart';
+import '../modules/Tracker/bindings/tracker_binding.dart';
+import '../modules/Tracker/views/tracker_view.dart';
 import '../modules/daily/bindings/daily_binding.dart';
 import '../modules/daily/views/daily_view.dart';
 import '../modules/discover/bindings/discover_binding.dart';
@@ -88,6 +90,11 @@ class AppPages {
       name: _Paths.PROFILE,
       page: () => const ProfileView(),
       binding: ProfileBinding(),
+    ),
+    GetPage(
+      name: _Paths.TRACKER,
+      page: () => const TrackerView(),
+      binding: TrackerBinding(),
     ),
   ];
 }
