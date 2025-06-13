@@ -36,91 +36,100 @@ class SleeptrackerView extends GetView<SleepTrackerController> {
             ),
           ),
           SafeArea(
-            child: Column(
-              children: [
-                const SizedBox(height: 24),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 24),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      'SLEEP TRACKER',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 26,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 1.2,
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 24),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 24),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 24),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'SLEEP TRACKER',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 26,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 1.2,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                ),
-                const SizedBox(height: 40),
-                Obx(
-                      () => GestureDetector(
-                    onPanStart: (d) => _onPanStart(d.localPosition, size),
-                    onPanUpdate: (d) => _onPanUpdate(d.localPosition, size),
-                    onPanEnd: (_) {
-                      _draggingHandle = null;
-                      _startAngle = null;
-                    },
-                    child: CustomPaint(
-                      size: const Size(size, size),
-                      painter: _SleepClockPainter(
-                        bedTime: controller.bedTime.value,
-                        alarmStart: controller.alarmStart.value,
+                    const SizedBox(height: 40),
+                    Obx(
+                          () => GestureDetector(
+                        onPanStart: (d) => _onPanStart(d.localPosition, size),
+                        onPanUpdate: (d) => _onPanUpdate(d.localPosition, size),
+                        onPanEnd: (_) {
+                          _draggingHandle = null;
+                          _startAngle = null;
+                        },
+                        child: CustomPaint(
+                          size: const Size(size, size),
+                          painter: _SleepClockPainter(
+                            bedTime: controller.bedTime.value,
+                            alarmStart: controller.alarmStart.value,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 32),
-                  child: Column(
-                    children: [
-                      _buildTimeRow(
-                        label: 'Bedtime',
-                        time: controller.bedTime,
-                        color: Colors.white,
-                      ),
-                      const SizedBox(height: 5),
-                      const Divider(color: Colors.white, thickness: 2),
-                      const SizedBox(height: 5),
-                      _buildTimeRow(
-                        label: 'Alarm',
-                        time: controller.alarmStart,
-                        color: Colors.white,
-                        updatedTime: controller.updatedAlarmStart,
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 32),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Get.to(() => const TrackerView());
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(28),
-                      ),
-                      minimumSize: const Size.fromHeight(56), // chiều cao chuẩn như daily_view
-                      padding: EdgeInsets.zero, // KHÔNG thêm padding để tránh khác nhau
-                    ),
-                    child: const Text(
-                      'Sleep now',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 20,
-                        fontFamily: 'Roboto',
-                        fontWeight: FontWeight.w700,
+                    const SizedBox(height: 24),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 32),
+                      child: Column(
+                        children: [
+                          _buildTimeRow(
+                            label: 'Bedtime',
+                            time: controller.bedTime,
+                            color: Colors.white,
+                          ),
+                          const SizedBox(height: 5),
+                          const Divider(color: Colors.white, thickness: 2),
+                          const SizedBox(height: 5),
+                          _buildTimeRow(
+                            label: 'Alarm',
+                            time: controller.alarmStart,
+                            color: Colors.white,
+                            updatedTime: controller.updatedAlarmStart,
+                          ),
+                        ],
                       ),
                     ),
-                  ),
+                    const SizedBox(height: 32),
+                    // ✅ NÚT ĐÃ ĐỒNG BỘ GIAO DIỆN
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: SizedBox(
+                        width: double.infinity,
+                        height: 56,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Get.to(() => const TrackerView());
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(28),
+                            ),
+                            elevation: 0,
+                          ),
+                          child: const Text(
+                            'Sleep now',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 20,
+                              fontFamily: 'Roboto',
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
         ],

@@ -360,26 +360,32 @@ class DailyView extends GetView<DailyController> {
                       ),
                       const SizedBox(height: 32),
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        child: ElevatedButton(
-                          onPressed: () {
-                            Get.to(() => const TrackerView());
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(28),
-                            ),
-                            minimumSize: const Size.fromHeight(56), // chiều cao chuẩn như daily_view
-                            padding: EdgeInsets.zero, // KHÔNG thêm padding để tránh khác nhau
-                          ),
-                          child: const Text(
-                            'Sleep now',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 20,
-                              fontFamily: 'Roboto',
-                              fontWeight: FontWeight.w700,
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
+                        child: Align(
+                          alignment: Alignment.center,
+                          child: SizedBox(
+                            width: double.infinity,
+                            height: 56,
+                            child: ElevatedButton(
+                              onPressed: () {
+                                Get.to(() => const TrackerView());
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(28),
+                                ),
+                                elevation: 0,
+                              ),
+                              child: const Text(
+                                'Sleep now',
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 20,
+                                  fontFamily: 'Roboto',
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
                             ),
                           ),
                         ),
