@@ -1,115 +1,280 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../routes/app_pages.dart';
-import '../controllers/alarm_controller.dart';
+import '../../sleeptracker/controllers/sleeptracker_controller.dart';
 
-class AlarmView extends GetView<AlarmController> {
+class AlarmView extends StatefulWidget {
   const AlarmView({super.key});
+
+  @override
+  State<AlarmView> createState() => _AlarmViewState();
+}
+
+class _AlarmViewState extends State<AlarmView> {
+  final controller = Get.find<SleepTrackerController>();
+
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 2,
-      initialIndex: 1, // 👉 chuyển sang tab Alarm
-      child: Scaffold(
-        body: Stack(
-          fit: StackFit.expand,
-          children: [
-            Image.asset('assets/images/Background.png', fit: BoxFit.cover),
-            SafeArea(
-              child: Column(
-                children: [
-                  // Tab bar
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Row(
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.arrow_back, color: Colors.white),
-                          onPressed: () => Get.back(),
-                        ),
-                        const Expanded(
-                          child: TabBar(
-                            labelColor: Colors.white,
-                            unselectedLabelColor: Colors.white70,
-                            indicatorColor: Colors.white,
-                            tabs: [
-                              Tab(text: 'Bed Time'),
-                              Tab(text: 'Alarm'),
-                            ],
-                          ),
-                        ),
-                      ],
+    return Scaffold(
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          Image.asset(
+            'assets/images/Background.png',
+            fit: BoxFit.cover,
+            color: Colors.black.withOpacity(0.2),
+            colorBlendMode: BlendMode.darken,
+          ),
+          SafeArea(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.arrow_back, color: Colors.white),
+                  onPressed: () => Get.back(),
+                ),
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(24, 0, 24, 16),
+                  child: Text(
+                    'Alarm',
+                    style: TextStyle(
+                      fontSize: 32,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.2,
                     ),
                   ),
-                  const SizedBox(height: 40),
-                  // Time Picker
-                  Obx(() {
-                    final time = controller.selectedTime.value;
-                    final hour = time.hourOfPeriod.toString().padLeft(2, '0');
+                ),
+                const SizedBox(height: 24),
+                Center(
+                  child: Obx(() {
+                    final time = controller.alarmStart.value;
+                    final hour = time.hour.toString().padLeft(2, '0');
                     final minute = time.minute.toString().padLeft(2, '0');
-                    final period = time.period == DayPeriod.am ? 'AM' : 'PM';
                     return Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
-                      margin: const EdgeInsets.symmetric(horizontal: 32),
+                      width: 320,
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(20),
+                        color: Colors.white.withOpacity(0.12),
+                        borderRadius: BorderRadius.circular(32),
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.4),
+                          width: 2.5,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.08),
+                            blurRadius: 16,
+                            offset: const Offset(0, 6),
+                          ),
+                        ],
                       ),
                       child: Column(
                         children: [
                           Text(
-                            "$hour:$minute $period",
+                            "$hour:$minute",
                             style: const TextStyle(
-                              fontSize: 36,
+                              fontSize: 42,
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
+                              letterSpacing: 2,
                             ),
                           ),
-                          const SizedBox(height: 16),
-                          ElevatedButton(
+                          const SizedBox(height: 18),
+                          ElevatedButton.icon(
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.deepPurple[300],
+                              backgroundColor: Colors.deepPurpleAccent,
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                             ),
-                            onPressed: () => controller.pickTime(context),
-                            child: const Text("Change Time"),
-                          )
+                            icon: const Icon(Icons.access_time),
+                            label: const Text("Change Time", style: TextStyle(fontSize: 16)),
+                            onPressed: () async {
+                              final newTime = await showTimePicker(
+                                context: context,
+                                initialTime: controller.alarmStart.value,
+                              );
+                              if (!context.mounted) return;
+                              if (newTime != null) {
+                                controller.updateAlarmStart(newTime);
+                              }
+                            },
+                          ),
                         ],
                       ),
                     );
                   }),
-                  const SizedBox(height: 32),
-                  // Alarm + Smart Alarm toggle
+                ),
+                const SizedBox(height: 48),
+                _optionListTile(title: 'Alarm'),
+                const SizedBox(height: 16),
+                _optionListTile(
+                  title: 'Smart Alarm',
+                  trailing: Obx(() => Text(
+                    '${controller.smartAlarmOffsetMinutes.value} minutes',
+                    style: const TextStyle(color: Colors.white70),
+                  )),
+                  onTap: () => _showSmartAlarmDialog(context),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _optionListTile({required String title, Widget? trailing, VoidCallback? onTap}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          height: 64,
+          decoration: BoxDecoration(
+            color: const Color(0xFF2B174A),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 16,
+                ),
+              ),
+              trailing ??
+                  const Icon(Icons.arrow_forward_ios_rounded,
+                      color: Colors.white, size: 18),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showSmartAlarmDialog(BuildContext context) {
+    final minuteOptions = [0, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
+    int tempMinute = controller.smartAlarmOffsetMinutes.value;
+    final minuteController = FixedExtentScrollController(
+      initialItem: minuteOptions.indexOf(tempMinute),
+    );
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(builder: (context, setStateDialog) {
+          return Dialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+            backgroundColor: const Color(0xFF1C103B),
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    'Smart alarm period',
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
+                  ),
+                  const SizedBox(height: 24),
                   Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 24),
+                    height: 160,
                     decoration: BoxDecoration(
-                      color: Colors.deepPurple.shade800,
                       borderRadius: BorderRadius.circular(12),
+                      color: Colors.black.withOpacity(0.15),
                     ),
-                    child: ListTile(
-                      title: const Text("Alarm", style: TextStyle(color: Colors.white)),
-                      trailing: const Icon(Icons.arrow_forward_ios, color: Colors.white),
-                      onTap: () {},
+                    child: _buildTimeSelector(
+                      controller: minuteController,
+                      options: minuteOptions,
+                      unit: 'min',
+                      onChanged: (i) => setStateDialog(() => tempMinute = minuteOptions[i]),
                     ),
                   ),
-                  const SizedBox(height: 12),
-                  Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 24),
-                    decoration: BoxDecoration(
-                      color: Colors.deepPurple.shade800,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Obx(() => SwitchListTile(
-                      title: const Text("Smart Alarm", style: TextStyle(color: Colors.white)),
-                      value: controller.isSmartAlarm.value,
-                      onChanged: controller.toggleSmartAlarm,
-                      activeColor: Colors.white,
-                    )),
+                  const SizedBox(height: 24),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        style: TextButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          foregroundColor: Colors.black,
+                          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                        ),
+                        child: const Text("Cancel"),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          controller.updateSmartAlarmOffset(tempMinute);
+                          Navigator.pop(context);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.deepPurpleAccent,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 16),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                        ),
+                        child: const Text("Save"),
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
-          ],
-        ),
+          );
+        });
+      },
+    );
+  }
+
+  Widget _buildTimeSelector({
+    required List<int> options,
+    required String unit,
+    required Function(int) onChanged,
+    required FixedExtentScrollController controller,
+  }) {
+    return SizedBox(
+      height: 160,
+      width: 100,
+      child: Stack(
+        children: [
+          ListWheelScrollView.useDelegate(
+            controller: controller,
+            itemExtent: 40,
+            diameterRatio: 1.2,
+            physics: const FixedExtentScrollPhysics(),
+            onSelectedItemChanged: onChanged,
+            childDelegate: ListWheelChildBuilderDelegate(
+              childCount: options.length,
+              builder: (context, index) {
+                final value = options[index];
+                return Center(
+                  child: Text(
+                    '$value $unit',
+                    style: const TextStyle(color: Colors.white, fontSize: 20),
+                  ),
+                );
+              },
+            ),
+          ),
+          Center(
+            child: Container(
+              height: 40,
+              margin: const EdgeInsets.symmetric(horizontal: 6),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.12),
+                borderRadius: BorderRadius.circular(9),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

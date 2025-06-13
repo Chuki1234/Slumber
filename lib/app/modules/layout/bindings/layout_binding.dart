@@ -22,6 +22,7 @@ class LayoutBinding extends Bindings {
         DailyView(),
         StatisticView(),
         ProfileView(),
+
       ]),
     );
     Get.lazyPut<SleepTrackerController>(() => SleepTrackerController());
