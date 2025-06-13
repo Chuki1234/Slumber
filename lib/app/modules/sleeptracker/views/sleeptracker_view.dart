@@ -96,26 +96,26 @@ class SleeptrackerView extends GetView<SleepTrackerController> {
                 ),
                 const SizedBox(height: 32),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Get.to(() => TrackerView()); // hoặc controller.sleepStart()
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: Colors.black,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: const StadiumBorder(),
-                        elevation: 0,
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Get.to(() => const TrackerView());
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(28),
                       ),
-                      child: const Text(
-                        'Sleep now',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      minimumSize: const Size.fromHeight(56), // chiều cao chuẩn như daily_view
+                      padding: EdgeInsets.zero, // KHÔNG thêm padding để tránh khác nhau
+                    ),
+                    child: const Text(
+                      'Sleep now',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 20,
+                        fontFamily: 'Roboto',
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ),

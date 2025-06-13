@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../sleeptracker/views/sleeptracker_view.dart';
 
 class TrackerView extends StatefulWidget {
   const TrackerView({super.key});
@@ -13,48 +12,36 @@ class TrackerView extends StatefulWidget {
 class _TrackerViewState extends State<TrackerView> {
   final RxString time = ''.obs;
   final RxString date = ''.obs;
-  final RxDouble ambientNoise = (-41.0).obs; // giá trị giả định
+  final RxDouble ambientNoise = (-41.0).obs;
 
-  Timer? _timer;
-  bool _isHolding = false;
+  Timer? _clockTimer;
   Timer? _holdTimer;
+  bool _isHolding = false;
 
   @override
   void initState() {
     super.initState();
-    _updateTime();
-    _timer = Timer.periodic(const Duration(seconds: 1), (_) => _updateTime());
+    _startClock();
   }
 
-  void _updateTime() {
+  void _startClock() {
+    _updateClock();
+    _clockTimer = Timer.periodic(const Duration(seconds: 1), (_) => _updateClock());
+  }
+
+  void _updateClock() {
     final now = DateTime.now();
     time.value = "${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}";
-    date.value = "${_getWeekday(now.weekday)}, ${_formatDate(now)}";
+    date.value = "${_getWeekday(now.weekday)}, ${_getMonth(now.month)} ${now.day}";
   }
 
-  String _getWeekday(int weekday) {
-    const weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-    return weekdays[weekday - 1];
-  }
-
-  String _formatDate(DateTime dt) {
-    return "${_month(dt.month)} ${dt.day}";
-  }
-
-  String _month(int month) {
-    const m = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-    ];
-    return m[month - 1];
-  }
+  String _getWeekday(int weekday) => ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][weekday - 1];
+  String _getMonth(int m) => ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][m - 1];
 
   void _startHold() {
     _isHolding = true;
     _holdTimer = Timer(const Duration(seconds: 3), () {
-      if (_isHolding) {
-        Get.off(() => SleeptrackerView());
-      }
+      if (_isHolding) Get.back(); // Quay lại SleeptrackerView và khôi phục BottomNavigationBar
     });
   }
 
@@ -65,7 +52,7 @@ class _TrackerViewState extends State<TrackerView> {
 
   @override
   void dispose() {
-    _timer?.cancel();
+    _clockTimer?.cancel();
     _holdTimer?.cancel();
     super.dispose();
   }
@@ -81,7 +68,7 @@ class _TrackerViewState extends State<TrackerView> {
           SafeArea(
             child: Column(
               children: [
-                // Logo + Ambient Noise
+                // Top info
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                   child: Row(
@@ -96,42 +83,34 @@ class _TrackerViewState extends State<TrackerView> {
                     ],
                   ),
                 ),
-
                 const Spacer(),
 
                 // Clock
                 Obx(() => Column(
                   children: [
                     Text(time.value,
-                        style: const TextStyle(color: Colors.white, fontSize: 64, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 6),
+                        style: const TextStyle(fontSize: 64, color: Colors.white, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 8),
                     Text(date.value,
-                        style: const TextStyle(color: Colors.white70, fontSize: 16)),
+                        style: const TextStyle(fontSize: 16, color: Colors.white70)),
                   ],
                 )),
-
                 const Spacer(),
 
-                // Music + Alarm
+                // Options
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: Column(
                     children: [
-                      _optionItem(icon: Icons.music_note, label: "Sound & Music", onTap: () {}),
+                      _optionTile(Icons.music_note, "Sound & Music", onTap: () {}),
                       const Divider(color: Colors.white30),
-                      _optionItem(
-                        icon: Icons.alarm,
-                        label: "Alarm",
-                        trailing: "04:30 - 05:00",
-                        onTap: () {},
-                      ),
+                      _optionTile(Icons.alarm, "Alarm", trailing: "04:30 - 05:00", onTap: () {}),
                     ],
                   ),
                 ),
-
                 const SizedBox(height: 32),
 
-                // Wake Up button
+                // Wake up button
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: Column(
@@ -149,19 +128,15 @@ class _TrackerViewState extends State<TrackerView> {
                           alignment: Alignment.center,
                           child: const Text(
                             "Wake up",
-                            style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold),
+                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
                           ),
                         ),
                       ),
                       const SizedBox(height: 8),
-                      const Text(
-                        "Long press to wake up",
-                        style: TextStyle(color: Colors.white60, fontSize: 12),
-                      ),
+                      const Text("Long press to wake up", style: TextStyle(color: Colors.white60, fontSize: 12)),
                     ],
                   ),
                 ),
-
                 const SizedBox(height: 24),
               ],
             ),
@@ -171,10 +146,10 @@ class _TrackerViewState extends State<TrackerView> {
     );
   }
 
-  Widget _optionItem({required IconData icon, required String label, String? trailing, VoidCallback? onTap}) {
+  Widget _optionTile(IconData icon, String label, {String? trailing, VoidCallback? onTap}) {
     return ListTile(
-      onTap: onTap,
       contentPadding: EdgeInsets.zero,
+      onTap: onTap,
       leading: CircleAvatar(
         backgroundColor: Colors.white10,
         child: Icon(icon, color: Colors.white),

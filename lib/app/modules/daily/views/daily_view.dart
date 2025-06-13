@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import '../../Tracker/views/tracker_view.dart';
 import '../../sleeptracker/controllers/sleeptracker_controller.dart';
 import '../controllers/daily_controller.dart';
 
@@ -361,13 +362,16 @@ class DailyView extends GetView<DailyController> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 12),
                         child: ElevatedButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            Get.to(() => const TrackerView());
+                          },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.white,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(28),
                             ),
-                            minimumSize: const Size.fromHeight(56),
+                            minimumSize: const Size.fromHeight(56), // chiều cao chuẩn như daily_view
+                            padding: EdgeInsets.zero, // KHÔNG thêm padding để tránh khác nhau
                           ),
                           child: const Text(
                             'Sleep now',
@@ -380,7 +384,6 @@ class DailyView extends GetView<DailyController> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 24),
                     ],
                   ),
                 ),
