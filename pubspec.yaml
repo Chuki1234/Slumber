@@ -41,6 +41,7 @@ dependencies:
   just_audio: ^0.10.3
   wheel_picker: ^0.2.1
   flutter_picker: ^2.1.0
+  get_storage: ^2.1.1
 
 dev_dependencies:
   flutter_test:
