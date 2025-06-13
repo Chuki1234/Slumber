@@ -51,7 +51,7 @@ class AppPages {
     ),
     GetPage(
       name: _Paths.DISCOVER,
-      page: () => const DiscoverView(),
+      page: () => DiscoverView(),
       binding: DiscoverBinding(),
     ),
     GetPage(
@@ -65,15 +65,20 @@ class AppPages {
       binding: StatisticBinding(),
     ),
     GetPage(
-        name: AppRoutes.home, page: () => HomeView(), binding: HomeBinding()),
+      name: AppRoutes.home,
+      page: () => HomeView(),
+      binding: HomeBinding(),
+    ),
     GetPage(
-        name: AppRoutes.bedtime,
-        page: () => BedtimeView(),
-        binding: BedtimeBinding()),
+      name: AppRoutes.bedtime,
+      page: () => BedtimeView(),
+      binding: BedtimeBinding(),
+    ),
     GetPage(
-        name: AppRoutes.alarm,
-        page: () => AlarmView(),
-        binding: AlarmBinding()),
+      name: AppRoutes.alarm,
+      page: () => AlarmView(),
+      binding: AlarmBinding(),
+    ),
     GetPage(
       name: _Paths.ALARM,
       page: () => const AlarmView(),
