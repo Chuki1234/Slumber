@@ -44,8 +44,8 @@ class DailyView extends GetView<DailyController> {
         },
         child: Container(
           width: 50,
-          margin: const EdgeInsets.symmetric(horizontal: 4),
-          padding: const EdgeInsets.symmetric(vertical: 8),
+          margin: const EdgeInsets.symmetric(horizontal: 3),
+          padding: const EdgeInsets.symmetric(vertical: 7),
           decoration: BoxDecoration(
             color: isSelected ? Colors.transparent : Colors.white12,
             borderRadius: BorderRadius.circular(12),

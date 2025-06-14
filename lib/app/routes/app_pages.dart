@@ -53,7 +53,7 @@ class AppPages {
     ),
     GetPage(
       name: _Paths.DISCOVER,
-      page: () => DiscoverView(),
+      page: () => DiscoverView(fromTracker: false,),
       binding: DiscoverBinding(),
     ),
     GetPage(
