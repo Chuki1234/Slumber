@@ -51,7 +51,7 @@ class DailyView extends GetView<DailyController> {
             borderRadius: BorderRadius.circular(12),
             border:
                 isSelected
-                    ? Border.all(color: Colors.cyanAccent, width: 2)
+                    ? Border.all(color: Colors.cyanAccent, width: 1.5)
                     : null,
           ),
           child: Column(

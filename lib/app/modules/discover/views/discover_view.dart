@@ -3,9 +3,7 @@ import 'package:get/get.dart';
 import '../controllers/discover_controller.dart';
 
 class DiscoverView extends GetView<DiscoverController> {
-  final bool fromTracker;
-
-  DiscoverView({Key? key, required this.fromTracker}) : super(key: key);
+  DiscoverView({Key? key}) : super(key: key);
 
   final GlobalKey soundsKey = GlobalKey();
   final GlobalKey musicKey = GlobalKey();
@@ -57,26 +55,6 @@ class DiscoverView extends GetView<DiscoverController> {
         child: Column(
           children: [
             const SizedBox(height: 12),
-
-            // ✅ Nút back nếu mở từ Tracker
-            if (fromTracker)
-              Padding(
-                padding: const EdgeInsets.only(left: 8, bottom: 4),
-                child: Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
-                      onPressed: () => Get.back(),
-                    ),
-                    const SizedBox(width: 4),
-                    const Text(
-                      'Back to Tracker',
-                      style: TextStyle(color: Colors.white, fontSize: 16),
-                    ),
-                  ],
-                ),
-              ),
-
             TabBar(
               controller: controller.tabController,
               labelColor: Colors.white,
@@ -89,7 +67,6 @@ class DiscoverView extends GetView<DiscoverController> {
                 Tab(text: 'Stories'),
               ],
             ),
-
             Expanded(
               child: SingleChildScrollView(
                 controller: controller.scrollController,
@@ -97,15 +74,74 @@ class DiscoverView extends GetView<DiscoverController> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _sectionTitle('Sleep Sounds', key: soundsKey),
-                    _horizontalList(controller.soundsList, _buildSoundCard),
+                    // Sounds section
+                    Container(
+                      key: soundsKey,
+                      padding: const EdgeInsets.all(16),
+                      child: Text(
+                        'Sleep Sounds',
+                        style: defaultTextStyle.copyWith(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 160,
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        scrollDirection: Axis.horizontal,
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        itemCount: controller.soundsList.length,
+                        itemBuilder: (context, index) {
+                          final item = controller.soundsList[index];
+                          return _buildSoundCard(item);
+                        },
+                      ),
+                    ),
                     const SizedBox(height: 30),
 
-                    _sectionTitle('Music', key: musicKey),
-                    _horizontalList(controller.musicList, _buildMusicCard),
+                    // Music section
+                    Container(
+                      key: musicKey,
+                      padding: const EdgeInsets.all(16),
+                      child: Text(
+                        'Music',
+                        style: defaultTextStyle.copyWith(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 160,
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        scrollDirection: Axis.horizontal,
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        itemCount: controller.musicList.length,
+                        itemBuilder: (context, index) {
+                          final item = controller.musicList[index];
+                          return _buildMusicCard(item);
+                        },
+                      ),
+                    ),
                     const SizedBox(height: 30),
 
-                    _sectionTitle('Stories', key: storiesKey),
+                    // Stories section
+                    Container(
+                      key: storiesKey,
+                      padding: const EdgeInsets.all(16),
+                      child: Text(
+                        'Stories',
+                        style: defaultTextStyle.copyWith(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
                     ListView.separated(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
@@ -123,10 +159,18 @@ class DiscoverView extends GetView<DiscoverController> {
                             ),
                             child: const Icon(Icons.book, color: Colors.white),
                           ),
-                          title: Text(item['title'] ?? 'No title',
-                              style: defaultTextStyle.copyWith(fontWeight: FontWeight.bold)),
-                          subtitle: Text(item['subtitle'] ?? '',
-                              style: defaultTextStyle.copyWith(color: Colors.white70)),
+                          title: Text(
+                            item['title'] ?? 'No title',
+                            style: defaultTextStyle.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          subtitle: Text(
+                            item['subtitle'] ?? '',
+                            style: defaultTextStyle.copyWith(
+                              color: Colors.white70,
+                            ),
+                          ),
                         );
                       },
                     ),
@@ -135,36 +179,70 @@ class DiscoverView extends GetView<DiscoverController> {
               ),
             ),
 
+            // Player bar
             Obx(() {
-              if (controller.playingIndex.value == -1) return const SizedBox.shrink();
+              if (controller.playingIndex.value == -1) {
+                return const SizedBox.shrink();
+              }
               final music = controller.musicList[controller.playingIndex.value];
-              return _playerBar(music);
+              return Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                color: Colors.grey.shade900.withOpacity(0.9),
+                child: Row(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: Container(
+                        width: 56,
+                        height: 56,
+                        color: Colors.grey.shade700,
+                        child: const Icon(Icons.music_note, color: Colors.white54),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            music['title'] ?? 'No title',
+                            style: defaultTextStyle.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            '⏱ ${music['duration'] ?? 'N/A'}',
+                            style: defaultTextStyle.copyWith(
+                              color: Colors.white70,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(
+                        controller.isPlaying.value ? Icons.pause : Icons.play_arrow,
+                        color: Colors.white,
+                      ),
+                      onPressed: () {
+                        controller.playMusic(controller.playingIndex.value);
+                      },
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close, color: Colors.white),
+                      onPressed: () {
+                        controller.stopMusic();
+                      },
+                    ),
+                  ],
+                ),
+              );
             }),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _sectionTitle(String title, {Key? key}) => Container(
-    key: key,
-    padding: const EdgeInsets.all(16),
-    child: Text(
-      title,
-      style: defaultTextStyle.copyWith(fontSize: 20, fontWeight: FontWeight.bold),
-    ),
-  );
-
-  Widget _horizontalList(List<Map<String, String?>> data, Widget Function(Map<String, String?>) builder) {
-    return SizedBox(
-      height: 160,
-      child: ListView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        itemCount: data.length,
-        itemBuilder: (context, index) => builder(data[index]),
       ),
     );
   }
@@ -197,8 +275,13 @@ class DiscoverView extends GetView<DiscoverController> {
                       color: Colors.lightBlueAccent,
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Text(item['tag']!,
-                        style: defaultTextStyle.copyWith(fontSize: 12, fontWeight: FontWeight.bold)),
+                    child: Text(
+                      item['tag']!,
+                      style: defaultTextStyle.copyWith(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ),
             ],
@@ -206,13 +289,20 @@ class DiscoverView extends GetView<DiscoverController> {
           const SizedBox(height: 8),
           Text(
             item['title'] ?? 'No title',
-            style: defaultTextStyle.copyWith(fontWeight: FontWeight.bold, fontSize: 14),
+            style: defaultTextStyle.copyWith(
+              fontWeight: FontWeight.bold,
+              fontSize: 14,
+            ),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
           Text(
             item['subtitle'] ?? '',
-            style: defaultTextStyle.copyWith(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.w600),
+            style: defaultTextStyle.copyWith(
+              color: Colors.white70,
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ],
       ),
@@ -238,54 +328,20 @@ class DiscoverView extends GetView<DiscoverController> {
           const SizedBox(height: 8),
           Text(
             item['title'] ?? 'No title',
-            style: defaultTextStyle.copyWith(fontWeight: FontWeight.bold, fontSize: 14),
+            style: defaultTextStyle.copyWith(
+              fontWeight: FontWeight.bold,
+              fontSize: 14,
+            ),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
           Text(
             item['duration'] ?? '',
-            style: defaultTextStyle.copyWith(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.w600),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _playerBar(Map<String, String?> music) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      color: Colors.grey.shade900.withOpacity(0.9),
-      child: Row(
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(20),
-            child: Container(
-              width: 56,
-              height: 56,
-              color: Colors.grey.shade700,
-              child: const Icon(Icons.music_note, color: Colors.white54),
+            style: defaultTextStyle.copyWith(
+              color: Colors.white70,
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
             ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(music['title'] ?? 'No title', style: defaultTextStyle.copyWith(fontWeight: FontWeight.bold)),
-                const SizedBox(height: 4),
-                Text("⏱ ${music['duration'] ?? 'N/A'}",
-                    style: defaultTextStyle.copyWith(color: Colors.white70, fontSize: 12)),
-              ],
-            ),
-          ),
-          IconButton(
-            icon: Icon(controller.isPlaying.value ? Icons.pause : Icons.play_arrow, color: Colors.white),
-            onPressed: () => controller.playMusic(controller.playingIndex.value),
-          ),
-          IconButton(
-            icon: const Icon(Icons.close, color: Colors.white),
-            onPressed: controller.stopMusic,
           ),
         ],
       ),
