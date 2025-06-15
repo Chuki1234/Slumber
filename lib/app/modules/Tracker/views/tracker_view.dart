@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../Alarm/bindings/alarm_binding.dart';
 import '../../Alarm/views/alarm_view.dart';
 import '../../discover/views/discover_view.dart';
 import '../../discover/bindings/discover_binding.dart';
+import '../../sleeptracker/controllers/sleeptracker_controller.dart';
 
 class TrackerView extends StatefulWidget {
   const TrackerView({super.key});
@@ -13,6 +15,7 @@ class TrackerView extends StatefulWidget {
 }
 
 class _TrackerViewState extends State<TrackerView> {
+  final controller = Get.find<SleepTrackerController>();
   final RxString time = ''.obs;
   final RxString date = ''.obs;
   final RxDouble ambientNoise = (-41.0).obs;
@@ -38,13 +41,13 @@ class _TrackerViewState extends State<TrackerView> {
     date.value = "${_getWeekday(now.weekday)}, ${_getMonth(now.month)} ${now.day}";
   }
 
-  String _getWeekday(int weekday) => ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'][weekday - 1];
-  String _getMonth(int m) => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][m - 1];
+  String _getWeekday(int weekday) => ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][weekday - 1];
+  String _getMonth(int m) => ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][m - 1];
 
   void _startHold() {
     _isHolding = true;
     _holdTimer = Timer(const Duration(seconds: 3), () {
-      if (_isHolding) Get.back();
+      if (_isHolding) Get.back(); // Quay về SleeptrackerView
     });
   }
 
@@ -63,6 +66,7 @@ class _TrackerViewState extends State<TrackerView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black,
       body: Stack(
         fit: StackFit.expand,
         children: [
@@ -70,13 +74,23 @@ class _TrackerViewState extends State<TrackerView> {
           SafeArea(
             child: Column(
               children: [
-                // Header
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      const Text("Slumber", style: TextStyle(color: Colors.white, fontSize: 14)),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Transform.translate(
+                          offset: const Offset(-17, 0),
+                          child: Image.asset(
+                            'assets/images/Logo.png',
+                            height: 100,
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                      ),
                       Obx(() => Text(
                         "Ambient noise\n${ambientNoise.value.toStringAsFixed(0)} dB",
                         textAlign: TextAlign.right,
@@ -85,29 +99,21 @@ class _TrackerViewState extends State<TrackerView> {
                     ],
                   ),
                 ),
+                const SizedBox(height: 48),
 
-                const SizedBox(height: 16),
+                Obx(() => Column(
+                  children: [
+                    Text(time.value,
+                        style: const TextStyle(fontSize: 64, color: Colors.white, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 8),
+                    Text(date.value,
+                        style: const TextStyle(fontSize: 16, color: Colors.white70)),
+                  ],
+                )),
 
-                // Clock center
-                Expanded(
-                  child: Obx(() => Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 80),
-                      Text(
-                        time.value,
-                        style: const TextStyle(fontSize: 64, fontWeight: FontWeight.bold, color: Colors.white),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        date.value,
-                        style: const TextStyle(color: Colors.white70, fontSize: 16),
-                      ),
-                    ],
-                  )),
-                ),
+                const Spacer(),
 
-                // Nút và tùy chọn
+                // Options
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: Column(
@@ -115,16 +121,50 @@ class _TrackerViewState extends State<TrackerView> {
                       _optionTile(
                         icon: Icons.music_note,
                         label: "Sound & Music",
+                        trailingColor: Colors.grey,
                         onTap: () => Get.to(() => DiscoverView(fromTracker: true), binding: DiscoverBinding()),
                       ),
                       const Divider(color: Colors.white30),
                       _optionTile(
                         icon: Icons.alarm,
                         label: "Alarm",
-                        trailing: "04:30 - 05:00",
-                        onTap: () => Get.to(() => const AlarmView()),
+                        trailing: Obx(() {
+                          final start = controller.alarmStart.value;
+                          final offset = controller.smartAlarmOffsetMinutes.value;
+
+                          String format(TimeOfDay t) =>
+                              '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
+
+                          if (offset == 0) {
+                            return Text(
+                              format(start),
+                              style: const TextStyle(color: Colors.white70, fontSize: 18),
+                            );
+                          }
+
+                          final totalMin = start.hour * 60 + start.minute + offset;
+                          final end = TimeOfDay(
+                            hour: (totalMin ~/ 60) % 24,
+                            minute: totalMin % 60,
+                          );
+
+                          return Text(
+                            '${format(start)} - ${format(end)}',
+                            style: const TextStyle(color: Colors.white70, fontSize: 18),
+                          );
+                        }),
+                        onTap: () => Get.to(() => const AlarmView(), binding: AlarmBinding()),
                       ),
-                      const SizedBox(height: 32),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 32),
+
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Column(
+                    children: [
                       GestureDetector(
                         onLongPressStart: (_) => _startHold(),
                         onLongPressEnd: (_) => _cancelHold(),
@@ -138,16 +178,18 @@ class _TrackerViewState extends State<TrackerView> {
                           alignment: Alignment.center,
                           child: const Text(
                             "Wake up",
-                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
+                            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black),
                           ),
                         ),
                       ),
                       const SizedBox(height: 8),
-                      const Text("Long press to wake up", style: TextStyle(color: Colors.white60, fontSize: 12)),
-                      const SizedBox(height: 12),
+                      const Text("Long press to wake up",
+                          style: TextStyle(color: Colors.white60, fontSize: 18)),
                     ],
                   ),
                 ),
+
+                const SizedBox(height: 24),
               ],
             ),
           ),
@@ -159,7 +201,8 @@ class _TrackerViewState extends State<TrackerView> {
   Widget _optionTile({
     required IconData icon,
     required String label,
-    String? trailing,
+    Widget? trailing,
+    Color? trailingColor,
     VoidCallback? onTap,
   }) {
     return ListTile(
@@ -167,19 +210,18 @@ class _TrackerViewState extends State<TrackerView> {
       onTap: onTap,
       leading: CircleAvatar(
         backgroundColor: Colors.white10,
-        child: Icon(icon, color: Colors.white),
+        child: Icon(icon, color: Colors.grey),
       ),
-      title: Text(label, style: const TextStyle(color: Colors.white, fontSize: 16)),
-      trailing: trailing != null
-          ? Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(trailing, style: const TextStyle(color: Colors.white70, fontSize: 14)),
-          const SizedBox(width: 4),
-          const Icon(Icons.chevron_right, color: Colors.white),
-        ],
-      )
-          : const Icon(Icons.chevron_right, color: Colors.white),
+      title: Text(
+        label,
+        style: const TextStyle(
+          color: Colors.grey,
+          fontSize: 18,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+      trailing: trailing ??
+          Icon(Icons.chevron_right, color: trailingColor ?? Colors.white),
     );
   }
 }

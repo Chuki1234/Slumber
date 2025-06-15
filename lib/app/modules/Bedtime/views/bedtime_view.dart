@@ -11,6 +11,7 @@ class BedtimeView extends StatefulWidget {
 
 class _BedtimeViewState extends State<BedtimeView> {
   final controller = Get.find<SleepTrackerController>();
+  bool isReminderEnabled = true;
 
   int selectedRemindHours = 0;
   int selectedRemindMinutes = 30;
@@ -108,27 +109,84 @@ class _BedtimeViewState extends State<BedtimeView> {
                   }),
                 ),
                 const SizedBox(height: 48),
-                _optionListTile(
-                  title: 'Discover',
-                  trailing: const SizedBox(height: 24),
-                ),
+                // _optionListTile(
+                //   title: 'Discover',
+                //   trailing: const SizedBox(height: 24),
+                // ),
                 const SizedBox(height: 17),
-                _optionListTile(
-                  title: 'Remind in advance',
-                  trailing: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 12.0),
-                    child: Text(
-                      selectedRemindHours > 0
-                          ? '${selectedRemindHours} hour${selectedRemindHours > 1 ? 's' : ''} ${selectedRemindMinutes} minutes'
-                          : '${selectedRemindMinutes} minutes',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                      ),
+                // Khối nhắc ngủ với Switch
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF2B174A),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // 🔹 Dòng Remind me to sleep + Switch
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              'Remind me to sleep',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            Switch(
+                              value: isReminderEnabled,
+                              activeColor: Colors.white,
+                              activeTrackColor: Colors.deepPurpleAccent,
+                              inactiveTrackColor: Colors.grey.shade700,
+                              onChanged: (val) {
+                                setState(() => isReminderEnabled = val);
+                              },
+                            ),
+                          ],
+                        ),
+
+                        if (isReminderEnabled) ...[
+                          const SizedBox(height: 12), // 👈 Thêm khoảng trước dòng phân cách
+                          const Divider(color: Colors.white24),
+                          const SizedBox(height: 12), // 👈 Thêm khoảng sau dòng phân cách
+
+                          GestureDetector(
+                            onTap: () => _showRemindDialog(context),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text(
+                                  'Remind in advance',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                Row(
+                                  children: [
+                                    Text(
+                                      selectedRemindHours > 0
+                                          ? '${selectedRemindHours}h ${selectedRemindMinutes}min'
+                                          : '${selectedRemindMinutes} min',
+                                      style: const TextStyle(color: Colors.white70, fontSize: 16),
+                                    ),
+                                    const SizedBox(width: 6),
+                                    const Icon(Icons.chevron_right, size: 18, color: Colors.white),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
                   ),
-                  onTap: () => _showRemindDialog(context),
                 ),
               ],
             ),
@@ -181,7 +239,7 @@ class _BedtimeViewState extends State<BedtimeView> {
 
   void _showRemindDialog(BuildContext context) {
     final hourOptions = [0, 1, 2, 3];
-    final minuteOptions = [10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
+    final minuteOptions = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
 
     int tempHour = selectedRemindHours;
     int tempMinute = selectedRemindMinutes;

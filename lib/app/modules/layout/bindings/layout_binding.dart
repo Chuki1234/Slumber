@@ -18,7 +18,7 @@ class LayoutBinding extends Bindings {
     Get.lazyPut<LayoutController>(
           () => LayoutController(pages: [
         SleeptrackerView(),
-        DiscoverView(fromTracker: false ,),
+        DiscoverView(fromTracker: false,),
         DailyView(),
         StatisticView(),
         ProfileView(),

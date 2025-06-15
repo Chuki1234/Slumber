@@ -3,7 +3,9 @@ import 'package:get/get.dart';
 import '../controllers/discover_controller.dart';
 
 class DiscoverView extends GetView<DiscoverController> {
-  DiscoverView({Key? key}) : super(key: key);
+  final bool fromTracker;
+
+  DiscoverView({Key? key, this.fromTracker = false}) : super(key: key);
 
   final GlobalKey soundsKey = GlobalKey();
   final GlobalKey musicKey = GlobalKey();
@@ -51,6 +53,16 @@ class DiscoverView extends GetView<DiscoverController> {
 
     return Scaffold(
       backgroundColor: Colors.deepPurple.shade900,
+      appBar: fromTracker
+          ? AppBar(
+        backgroundColor: Colors.deepPurple.shade900,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Get.back(),
+        ),
+      )
+          : null,
       body: SafeArea(
         child: Column(
           children: [

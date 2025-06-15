@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../Bedtime/views/bedtime_view.dart';
 import '../../sleeptracker/controllers/sleeptracker_controller.dart';
 
 class AlarmView extends StatefulWidget {
@@ -108,16 +109,125 @@ class _AlarmViewState extends State<AlarmView> {
                   }),
                 ),
                 const SizedBox(height: 48),
-                _optionListTile(title: 'Alarm'),
-                const SizedBox(height: 16),
                 _optionListTile(
-                  title: 'Smart Alarm',
-                  trailing: Obx(() => Text(
-                    '${controller.smartAlarmOffsetMinutes.value} minutes',
-                    style: const TextStyle(color: Colors.white70),
-                  )),
-                  onTap: () => _showSmartAlarmDialog(context),
+                  title: 'Bedtime',
+                  onTap: () {
+                    // Gọi controller nếu cần
+                    // Get.put(BedtimeController()); // nếu chưa dùng binding
+                    Get.to(() => const BedtimeView()); // nếu có binding thì thêm: , binding: BedtimeBinding()
+                  },
                 ),
+                const SizedBox(height: 16),
+                Obx(() {
+                  final isEnabled = controller.isSmartAlarmEnabled.value;
+                  final offset = controller.smartAlarmOffsetMinutes.value;
+                  final start = controller.alarmStart.value;
+
+                  final totalMin = start.hour * 60 + start.minute + offset;
+                  final end = TimeOfDay(hour: (totalMin ~/ 60) % 24, minute: totalMin % 60);
+
+                  String format(TimeOfDay t) =>
+                      '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
+
+                  // 👉 Khi Smart Alarm TẮT → chỉ hiện một ListTile giống nút Alarm
+                  if (!isEnabled) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                      child: Container(
+                        height: 64,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF2B174A),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              'Smart alarm',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 16,
+                              ),
+                            ),
+                            Switch(
+                              value: isEnabled,
+                              activeColor: Colors.white,
+                              activeTrackColor: Colors.deepPurpleAccent,
+                              inactiveTrackColor: Colors.grey.shade700,
+                              onChanged: (val) => controller.isSmartAlarmEnabled.value = val,
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }
+
+                  // 👉 Khi Smart Alarm BẬT → full UI
+                  return Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 24),
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF2B174A),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Smart alarm + switch
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: const [
+                                Text('Smart alarm',
+                                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white)),
+                                SizedBox(width: 6),
+                                Icon(Icons.help_outline, size: 16, color: Colors.white54),
+                              ],
+                            ),
+                            Switch(
+                              value: isEnabled,
+                              activeColor: Colors.white,
+                              activeTrackColor: Colors.deepPurpleAccent,
+                              onChanged: (val) => controller.isSmartAlarmEnabled.value = val,
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 12),
+
+                        GestureDetector(
+                          onTap: () => _showSmartAlarmDialog(context),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text('Wake up period',
+                                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white)),
+                              Row(
+                                children: [
+                                  Text('$offset min',
+                                      style: const TextStyle(fontSize: 16, color: Colors.white70)),
+                                  const SizedBox(width: 4),
+                                  const Icon(Icons.chevron_right, size: 18, color: Colors.white),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        const SizedBox(height: 12),
+
+                        Text(
+                          'The smart alarm will wake you up at the best time between '
+                              '${format(start)}${offset > 0 ? ' - ${format(end)}' : ''}',
+                          style: const TextStyle(fontSize: 14, color: Colors.white70),
+                        ),
+                      ],
+                    ),
+                  );
+                }),
               ],
             ),
           ),
@@ -160,7 +270,7 @@ class _AlarmViewState extends State<AlarmView> {
   }
 
   void _showSmartAlarmDialog(BuildContext context) {
-    final minuteOptions = [0, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
+    final minuteOptions = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
     int tempMinute = controller.smartAlarmOffsetMinutes.value;
     final minuteController = FixedExtentScrollController(
       initialItem: minuteOptions.indexOf(tempMinute),

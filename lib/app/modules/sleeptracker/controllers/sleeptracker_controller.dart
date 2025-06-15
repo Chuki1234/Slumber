@@ -8,6 +8,8 @@ class SleepTrackerController extends GetxController {
 
   final updatedAlarmStart = Rx<TimeOfDay?>(null);               // Thời gian sau khi chỉnh bằng Smart Alarm
   final smartAlarmOffsetMinutes = 0.obs;
+  final RxBool isSmartAlarmEnabled = true.obs;
+
   /// Format dạng 'hh:mm AM/PM'
   String formatTime(TimeOfDay t) {
     final hour = t.hourOfPeriod == 0 ? 12 : t.hourOfPeriod;

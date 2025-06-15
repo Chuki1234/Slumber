@@ -67,9 +67,10 @@ flutter:
 
   assets:
     - assets/images/Background.png
-    - assets/images/logo.png
     - assets/images/google.png
     - assets/images/Slumber_logo.png
+    - assets/images/Logo.png
+    - assets/images/Tracker_bg.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
