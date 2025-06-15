@@ -50,65 +50,112 @@ class _BedtimeViewState extends State<BedtimeView> {
                 ),
                 const SizedBox(height: 24),
                 Center(
-                  child: Obx(() {
-                    final time = controller.bedTime.value;
-                    final hour = time.hour.toString().padLeft(2, '0');
-                    final minute = time.minute.toString().padLeft(2, '0');
-                    return Container(
-                      width: 320,
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.12),
-                        borderRadius: BorderRadius.circular(32),
-                        border: Border.all(color: Colors.white.withOpacity(0.4), width: 2.5),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.08),
-                            blurRadius: 16,
-                            offset: const Offset(0, 6),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        children: [
-                          Text(
-                            "$hour:$minute",
-                            style: const TextStyle(
-                              fontSize: 42,
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 2,
-                            ),
-                          ),
-                          const SizedBox(height: 18),
-                          ElevatedButton.icon(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.deepPurpleAccent,
-                              foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16),
+                  child: Column(
+                    children: [
+                      // Vùng chỉnh giờ bedtime
+                      Obx(() {
+                        final time = controller.bedTime.value;
+                        final hour = time.hour.toString().padLeft(2, '0');
+                        final minute = time.minute.toString().padLeft(2, '0');
+                        return Container(
+                          width: 320,
+                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.12),
+                            borderRadius: BorderRadius.circular(32),
+                            border: Border.all(color: Colors.white.withOpacity(0.4), width: 2.5),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.08),
+                                blurRadius: 16,
+                                offset: const Offset(0, 6),
                               ),
-                              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                            ),
-                            icon: const Icon(Icons.access_time),
-                            label: const Text("Change Time", style: TextStyle(fontSize: 16)),
-                            onPressed: () async {
-                              final newTime = await showTimePicker(
-                                context: context,
-                                initialTime: controller.bedTime.value,
-                              );
-                              if (!context.mounted) return;
-                              if (newTime != null) {
-                                controller.updateBedTime(newTime);
-                              }
-                            },
+                            ],
                           ),
-                        ],
-                      ),
-                    );
-                  }),
+                          child: Column(
+                            children: [
+                              Text(
+                                "$hour:$minute",
+                                style: const TextStyle(
+                                  fontSize: 42,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 2,
+                                ),
+                              ),
+                              const SizedBox(height: 18),
+                              ElevatedButton.icon(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.deepPurpleAccent,
+                                  foregroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                                ),
+                                icon: const Icon(Icons.access_time),
+                                label: const Text("Change Time", style: TextStyle(fontSize: 16)),
+                                onPressed: () async {
+                                  final newTime = await showTimePicker(
+                                    context: context,
+                                    initialTime: controller.bedTime.value,
+                                  );
+                                  if (!context.mounted) return;
+                                  if (newTime != null) {
+                                    controller.updateBedTime(newTime);
+                                  }
+                                },
+                              ),
+                            ],
+                          ),
+                        );
+                      }),
+
+                      const SizedBox(height: 24), // 👈 khoảng cách giữa box giờ và dòng chữ
+
+                      // Dòng text sleep goal
+                      Obx(() {
+                        final bedTime = controller.bedTime.value;
+                        final alarmTime = controller.alarmStart.value;
+
+                        int toMinutes(TimeOfDay t) => t.hour * 60 + t.minute;
+                        final diff = (toMinutes(alarmTime) - toMinutes(bedTime) + 1440) % 1440;
+                        final totalHours = (diff / 60).toStringAsFixed(1);
+
+                        final hours = diff ~/ 60;
+                        final minutes = diff % 60;
+                        // Build the text: "8 h 30 m" hoặc "8 h"
+                        final goalText = minutes == 0 ? '$hours h' : '$hours h $minutes m';
+
+                        return Column(
+                          children: [
+                            RichText(
+                              text: TextSpan(
+                                style: const TextStyle(color: Colors.white70, fontSize: 16),
+                                children: [
+                                  const TextSpan(text: 'Your sleep goal is '),
+                                  TextSpan(
+                                    text: goalText,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Color(0xFF7F7CFF),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 3),
+                            const Text(
+                              'Based on your bedtime and alarm time',
+                              style: TextStyle(color: Colors.white70, fontSize: 14),
+                            ),
+                          ],
+                        );
+                      })
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 48),
+                const SizedBox(height: 10),
                 // _optionListTile(
                 //   title: 'Discover',
                 //   trailing: const SizedBox(height: 24),

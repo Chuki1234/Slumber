@@ -9,17 +9,18 @@ class DailyView extends GetView<DailyController> {
   final sleepController = Get.find<SleepTrackerController>();
   DailyView({super.key});
 
-  String calculateSleepDuration(TimeOfDay bedTime, TimeOfDay alarmStart) {
-    final bedTimeInMinutes = bedTime.hour * 60 + bedTime.minute;
-    final alarmTimeInMinutes = alarmStart.hour * 60 + alarmStart.minute;
-    int durationInMinutes = alarmTimeInMinutes - bedTimeInMinutes;
-    if (durationInMinutes < 0) durationInMinutes += 1440;
-    final hours = durationInMinutes ~/ 60;
-    final minutes = durationInMinutes % 60;
-    return minutes == 0
-        ? '${hours}:00'
-        : '${hours}:${minutes.toString().padLeft(2, '0')}';
-  }
+    String calculateSleepDuration(TimeOfDay bedTime, TimeOfDay alarmStart) {
+      final bedTimeInMinutes = bedTime.hour * 60 + bedTime.minute;
+      final alarmTimeInMinutes = alarmStart.hour * 60 + alarmStart.minute;
+      int durationInMinutes = alarmTimeInMinutes - bedTimeInMinutes;
+      if (durationInMinutes < 0) durationInMinutes += 1440;
+      final hours = durationInMinutes ~/ 60;
+      final minutes = durationInMinutes % 60;
+      return minutes == 0
+          ? '${hours}:00'
+          : '${hours}:${minutes.toString().padLeft(2, '0')}';
+
+    }
 
   String _formatTime24(TimeOfDay t) {
     return t.minute == 0
@@ -216,32 +217,49 @@ class DailyView extends GetView<DailyController> {
                               ),
                             ),
                             Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  const Text(
-                                    '⏰ Goal',
-                                    style: TextStyle(
-                                      color: Colors.white54,
-                                      fontSize: 16,
+                              child: Obx(() {
+                                final durationStr = calculateSleepDuration(
+                                  sleepController.bedTime.value,
+                                  sleepController.alarmStart.value,
+                                );
+
+                                final parts = durationStr.split(':');
+                                final hours = int.parse(parts[0]);
+                                final minutes = int.parse(parts[1]);
+
+                                final goalText = minutes == 0
+                                    ? '$hours h'
+                                    : '$hours h $minutes min';
+
+                                return Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          '⏰ Goal',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                  ),
-                                  const SizedBox(height: 10),
-                                  Obx(
-                                    () => Text(
-                                      calculateSleepDuration(
-                                        sleepController.bedTime.value,
-                                        sleepController.alarmStart.value,
-                                      ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      goalText,
+                                      textAlign: TextAlign.center,
                                       style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 24,
+                                        fontSize: 26,
                                         fontWeight: FontWeight.bold,
+                                        color: Colors.white,
                                       ),
                                     ),
-                                  ),
-                                ],
-                              ),
+                                  ],
+                                );
+                              }),
                             ),
                           ],
                         ),

@@ -185,9 +185,13 @@ class SleeptrackerView extends GetView<SleepTrackerController> {
                   hour: (totalMin ~/ 60) % 24,
                   minute: totalMin % 60,
                 );
+
                 final text = label == 'Alarm'
-                    ? '${_formatHM(base)} - ${_formatHM(extended)}'
+                    ? (offset == 0
+                    ? _formatHM(base)
+                    : '${_formatHM(base)} - ${_formatHM(extended)}')
                     : _formatHM(base);
+
                 return Text(
                   text,
                   style: const TextStyle(
