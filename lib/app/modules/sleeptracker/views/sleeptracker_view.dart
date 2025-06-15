@@ -179,7 +179,11 @@ class SleeptrackerView extends GetView<SleepTrackerController> {
               const Spacer(),
               Obx(() {
                 final base = time.value;
-                final offset = label == 'Alarm' ? controller.smartAlarmOffsetMinutes.value : 0;
+                final isSmartOn = controller.isSmartAlarmEnabled.value;
+                final offset = (label == 'Alarm' && isSmartOn)
+                    ? controller.smartAlarmOffsetMinutes.value
+                    : 0;
+
                 final totalMin = base.hour * 60 + base.minute + offset;
                 final extended = TimeOfDay(
                   hour: (totalMin ~/ 60) % 24,
