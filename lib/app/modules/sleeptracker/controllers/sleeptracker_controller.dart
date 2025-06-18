@@ -10,6 +10,8 @@ class SleepTrackerController extends GetxController {
   final smartAlarmOffsetMinutes = 0.obs;
   final RxBool isSmartAlarmEnabled = true.obs;
 
+  var snoozeMinutes = 5.obs; // mặc định 5 phút hoặc 0 nếu muốn Off
+
   /// Format dạng 'hh:mm AM/PM'
   String formatTime(TimeOfDay t) {
     final hour = t.hourOfPeriod == 0 ? 12 : t.hourOfPeriod;
@@ -34,5 +36,9 @@ class SleepTrackerController extends GetxController {
 
   void updateSmartAlarmOffset(int minutes) {
     smartAlarmOffsetMinutes.value = minutes;
+  }
+
+  void updateSnoozeMinutes(int value) {
+    snoozeMinutes.value = value;
   }
 }

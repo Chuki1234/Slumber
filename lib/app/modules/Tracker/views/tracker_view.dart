@@ -131,26 +131,34 @@ class _TrackerViewState extends State<TrackerView> {
                         trailing: Obx(() {
                           final start = controller.alarmStart.value;
                           final offset = controller.smartAlarmOffsetMinutes.value;
+                          final isSmartOn = controller.isSmartAlarmEnabled.value;
 
                           String format(TimeOfDay t) =>
                               '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
 
-                          if (offset == 0) {
-                            return Text(
-                              format(start),
-                              style: const TextStyle(color: Colors.white70, fontSize: 18),
+                          late final String timeText;
+
+                          if (!isSmartOn || offset == 0) {
+                            timeText = format(start);
+                          } else {
+                            final totalMin = start.hour * 60 + start.minute + offset;
+                            final end = TimeOfDay(
+                              hour: (totalMin ~/ 60) % 24,
+                              minute: totalMin % 60,
                             );
+                            timeText = '${format(start)} - ${format(end)}';
                           }
 
-                          final totalMin = start.hour * 60 + start.minute + offset;
-                          final end = TimeOfDay(
-                            hour: (totalMin ~/ 60) % 24,
-                            minute: totalMin % 60,
-                          );
-
-                          return Text(
-                            '${format(start)} - ${format(end)}',
-                            style: const TextStyle(color: Colors.white70, fontSize: 18),
+                          return Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                timeText,
+                                style: const TextStyle(color: Colors.white70, fontSize: 17, fontWeight: FontWeight.w500),
+                              ),
+                              const SizedBox(width: 6),
+                              const Icon(Icons.chevron_right, color: Colors.grey),
+                            ],
                           );
                         }),
                         onTap: () => Get.to(() => const AlarmView(), binding: AlarmBinding()),
@@ -202,6 +210,7 @@ class _TrackerViewState extends State<TrackerView> {
     required IconData icon,
     required String label,
     Widget? trailing,
+    Widget? subtitle,
     Color? trailingColor,
     VoidCallback? onTap,
   }) {
@@ -220,8 +229,8 @@ class _TrackerViewState extends State<TrackerView> {
           fontWeight: FontWeight.w700,
         ),
       ),
-      trailing: trailing ??
-          Icon(Icons.chevron_right, color: trailingColor ?? Colors.white),
+      subtitle: subtitle,
+      trailing: trailing ?? Icon(Icons.chevron_right, color: trailingColor ?? Colors.white),
     );
   }
 }

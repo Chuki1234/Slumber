@@ -118,6 +118,7 @@ class _AlarmViewState extends State<AlarmView> {
                   },
                 ),
                 const SizedBox(height: 16),
+
                 Obx(() {
                   final isEnabled = controller.isSmartAlarmEnabled.value;
                   final offset = controller.smartAlarmOffsetMinutes.value;
@@ -228,6 +229,49 @@ class _AlarmViewState extends State<AlarmView> {
                     ),
                   );
                 }),
+
+                const SizedBox(height: 16),
+
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: GestureDetector(
+                    onTap: () => _showSnoozeDialog(context),
+                    child: Container(
+                      height: 64,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF2B174A),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'Snooze',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
+                          Obx(() {
+                            final snooze = controller.snoozeMinutes.value;
+                            return Row(
+                              children: [
+                                Text(
+                                  snooze == 0 ? 'Off' : '$snooze min',
+                                  style: const TextStyle(fontSize: 16, color: Colors.white70),
+                                ),
+                                const SizedBox(width: 4),
+                                const Icon(Icons.chevron_right, size: 18, color: Colors.white),
+                              ],
+                            );
+                          }),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
@@ -275,7 +319,6 @@ class _AlarmViewState extends State<AlarmView> {
     final minuteController = FixedExtentScrollController(
       initialItem: minuteOptions.indexOf(tempMinute),
     );
-
     showDialog(
       context: context,
       builder: (context) {
@@ -344,6 +387,81 @@ class _AlarmViewState extends State<AlarmView> {
     );
   }
 
+  void _showSnoozeDialog(BuildContext context) {
+    final snoozeOptions = [0, 5, 10, 15, 20, 25, 30]; // bạn có thể thêm nhiều hơn
+    int tempSnooze = controller.snoozeMinutes.value;
+    final controllerScroll = FixedExtentScrollController(
+      initialItem: snoozeOptions.indexOf(tempSnooze),
+    );
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(builder: (context, setStateDialog) {
+          return Dialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+            backgroundColor: const Color(0xFF1C103B),
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    'Snooze',
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
+                  ),
+                  const SizedBox(height: 24),
+                  Container(
+                    height: 160,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      color: Colors.black.withOpacity(0.15),
+                    ),
+                    child: _buildTimeSelector(
+                      controller: controllerScroll,
+                      options: snoozeOptions,
+                      unit: 'min',
+                      onChanged: (i) => setStateDialog(() => tempSnooze = snoozeOptions[i]),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        style: TextButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          foregroundColor: Colors.black,
+                          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                        ),
+                        child: const Text("Cancel"),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          controller.snoozeMinutes.value = tempSnooze;
+                          Navigator.pop(context);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.deepPurpleAccent,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(horizontal: 39, vertical: 16),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                        ),
+                        child: const Text("Save"),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          );
+        });
+      },
+    );
+  }
+
   Widget _buildTimeSelector({
     required List<int> options,
     required String unit,
@@ -367,7 +485,7 @@ class _AlarmViewState extends State<AlarmView> {
                 final value = options[index];
                 return Center(
                   child: Text(
-                    '$value $unit',
+                    value == 0 ? 'Off' : '$value $unit',
                     style: const TextStyle(color: Colors.white, fontSize: 20),
                   ),
                 );
