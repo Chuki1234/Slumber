@@ -42,6 +42,7 @@ dependencies:
   wheel_picker: ^0.2.1
   flutter_picker: ^2.1.0
   get_storage: ^2.1.1
+  supabase_flutter: ^2.9.1
 
 dev_dependencies:
   flutter_test:
@@ -70,46 +71,6 @@ flutter:
     - assets/images/google.png
     - assets/images/Slumber_logo.png
     - assets/images/Logo.png
-    - assets/images/SleepSounds/Ocean_waves.jpg
-    - assets/images/SleepSounds/Rainfall.jpeg
-    - assets/images/SleepSounds/Forest_birds.jpeg
-    - assets/images/SleepSounds/Wind_blowing.webp
-    - assets/images/SleepSounds/Night_crickets.jpg
-    - assets/images/SleepSounds/Fireplace.webp
-    - assets/images/SleepSounds/River_stream.jpeg
-    - assets/images/SleepSounds/Thunderstorm.jpeg
-    - assets/images/SleepSounds/Wind_chimes.webp
-    - assets/images/SleepSounds/Underwater_world.webp
-    - assets/images/Music/Peaceful_piano.jpg
-    - assets/images/Music/Calming_guitar.webp
-    - assets/images/Music/Deep_sleep.jpeg
-    - assets/images/Music/Harp_healing.jpg
-    - assets/images/Music/Chill_beats.webp
-    - assets/images/Music/Ambient_rain.jpg
-    - assets/images/Music/Soft_piano.jpg
-    - assets/images/Music/Dreamy_synths.jpg
-    - assets/images/Music/Gentle_guitar.webp
-    - assets/images/Music/Soothing_flute.jpg
-    - assets/images/Stories/The_sleepy_forest.jpeg
-    - assets/images/Stories/Moonlight_magic.jpg
-    - assets/images/Stories/Dreamland_adventures.jpeg
-    - assets/images/Stories/Starlit_meadow.jpeg
-    - assets/images/Stories/Luna_the_owl.jpg
-    - assets/images/Stories/The_whispering_tree.jpg
-    - assets/images/Stories/The_cloud_rider.jpg
-    - assets/images/Stories/Dandelion_dreams.webp
-    - assets/images/Stories/Snowy_tales.jpg
-    - assets/images/Stories/Aurora_nights.webp
-    - assets/images/Stories/The_sleepy_forest.jpeg
-    - assets/images/Stories/Moonlight_magic.jpg
-    - assets/images/Stories/Dreamland_adventures.jpeg
-    - assets/images/Stories/Starlit_meadow.jpeg
-    - assets/images/Stories/Luna_the_owl.jpg
-    - assets/images/Stories/The_whispering_tree.jpg
-    - assets/images/Stories/The_cloud_rider.jpg
-    - assets/images/Stories/Dandelion_dreams.webp
-    - assets/images/Stories/Snowy_tales.jpg
-    - assets/images/Stories/Aurora_nights.webp
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
