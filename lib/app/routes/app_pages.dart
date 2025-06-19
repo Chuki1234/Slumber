@@ -16,6 +16,8 @@ import '../modules/layout/bindings/layout_binding.dart';
 import '../modules/layout/views/layout_view.dart';
 import '../modules/login/bindings/login_binding.dart';
 import '../modules/login/views/login_view.dart';
+import '../modules/play_music/bindings/play_music_binding.dart';
+import '../modules/play_music/views/play_music_view.dart';
 import '../modules/profile/bindings/profile_binding.dart';
 import '../modules/profile/views/profile_view.dart';
 import '../modules/sleeptracker/bindings/sleeptracker_binding.dart';
@@ -53,7 +55,9 @@ class AppPages {
     ),
     GetPage(
       name: _Paths.DISCOVER,
-      page: () => DiscoverView(fromTracker: false,),
+      page: () => DiscoverView(
+        fromTracker: false,
+      ),
       binding: DiscoverBinding(),
     ),
     GetPage(
@@ -95,6 +99,11 @@ class AppPages {
       name: _Paths.TRACKER,
       page: () => const TrackerView(),
       binding: TrackerBinding(),
+    ),
+    GetPage(
+      name: _Paths.PLAY_MUSIC,
+      page: () => const PlayMusicView(),
+      binding: PlayMusicBinding(),
     ),
   ];
 }
