@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:slumber/app/modules/play_music/bindings/play_music_binding.dart';
 
 import '../modules/Alarm/bindings/alarm_binding.dart';
 import '../modules/Alarm/views/alarm_view.dart';
@@ -16,7 +17,6 @@ import '../modules/layout/bindings/layout_binding.dart';
 import '../modules/layout/views/layout_view.dart';
 import '../modules/login/bindings/login_binding.dart';
 import '../modules/login/views/login_view.dart';
-import '../modules/play_music/bindings/play_music_binding.dart';
 import '../modules/play_music/views/play_music_view.dart';
 import '../modules/profile/bindings/profile_binding.dart';
 import '../modules/profile/views/profile_view.dart';

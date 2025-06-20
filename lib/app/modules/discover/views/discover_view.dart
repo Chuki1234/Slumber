@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../layout/controllers/layout_controller.dart';
+import '../../play_music/views/play_music_view.dart';
 import '../controllers/discover_controller.dart';
 
 
@@ -160,7 +162,18 @@ class DiscoverView extends GetView<DiscoverController> {
                               final item = controller.storiesList[index];
                               return GestureDetector(
                                 onTap: () {
-                                  Get.toNamed('/play-music', arguments: item);
+                                  final layoutController = Get.find<LayoutController>();
+
+                                  layoutController.playSong(
+                                    Song(
+                                      title: item['title'] ?? 'No title',
+                                      artist: item['description'] ?? '',
+                                      imageUrl: item['image_url'] ?? '',
+                                      audioUrl: item['audio_url'] ?? '',
+                                    ),
+                                  );
+
+                                  Get.to(() => const PlayMusicView());
                                 },
                                 child: ListTile(
                                   leading: ClipRRect(
@@ -197,62 +210,7 @@ class DiscoverView extends GetView<DiscoverController> {
                     ),
                   ),
                 ),
-                Obx(() {
-                  if (controller.playingIndex.value == -1 ||
-                      controller.playingIndex.value >= controller.musicList.length) {
-                    return const SizedBox.shrink();
-                  }
-                  final music = controller.musicList[controller.playingIndex.value];
-                  return Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                    color: Colors.grey.shade900.withOpacity(0.9),
-                    child: Row(
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(20),
-                          child: Container(
-                            width: 56,
-                            height: 56,
-                            color: Colors.grey.shade700,
-                            child: const Icon(Icons.music_note, color: Colors.white54),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                music['title'] ?? 'No title',
-                                style: defaultTextStyle.copyWith(fontWeight: FontWeight.bold),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                '⏱ ${(music['duration'] != null ? '${music['duration']} min' : 'N/A')}',
-                                style: defaultTextStyle.copyWith(
-                                  color: Colors.white70,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        IconButton(
-                          icon: Icon(
-                            controller.isPlaying.value ? Icons.pause : Icons.play_arrow,
-                            color: Colors.white,
-                          ),
-                          onPressed: () => controller.playMusic(controller.playingIndex.value),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.close, color: Colors.white),
-                          onPressed: controller.stopMusic,
-                        ),
-                      ],
-                    ),
-                  );
-                }),
+
               ],
             ),
           ),
@@ -325,7 +283,18 @@ class DiscoverView extends GetView<DiscoverController> {
   Widget _buildMusicCard(Map<String, dynamic> item) {
     return GestureDetector(
       onTap: () {
-        Get.toNamed('/play-music', arguments: item);
+        final layoutController = Get.find<LayoutController>();
+
+        layoutController.playSong(
+          Song(
+            title: item['title'] ?? 'No title',
+            artist: item['description'] ?? '',
+            imageUrl: item['image_url'] ?? '',
+            audioUrl: item['audio_url'] ?? '',
+          ),
+        );
+
+        Get.to(() => PlayMusicView());
       },
       child: Container(
         width: 180,
@@ -333,6 +302,7 @@ class DiscoverView extends GetView<DiscoverController> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Ảnh bài hát
             ClipRRect(
               borderRadius: BorderRadius.circular(16),
               child: Image.network(
@@ -341,24 +311,27 @@ class DiscoverView extends GetView<DiscoverController> {
                 height: 140,
                 fit: BoxFit.cover,
                 filterQuality: FilterQuality.high,
-                errorBuilder: (context, error, stackTrace) =>
-                    Container(
-                      width: 180,
-                      height: 140,
-                      color: Colors.grey[300],
-                      child: const Center(
-                        child: Icon(Icons.broken_image, size: 40, color: Colors.grey),
-                      ),
-                    ),
+                errorBuilder: (context, error, stackTrace) => Container(
+                  width: 180,
+                  height: 140,
+                  color: Colors.grey[300],
+                  child: const Center(
+                    child: Icon(Icons.broken_image, size: 40, color: Colors.grey),
+                  ),
+                ),
               ),
             ),
             const SizedBox(height: 8),
+
+            // Tên bài
             Text(
               item['title'] ?? 'No title',
               style: defaultTextStyle.copyWith(fontWeight: FontWeight.bold, fontSize: 14),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
+
+            // Thời lượng
             Text(
               (item['duration'] != null ? '${item['duration']} min' : ''),
               style: defaultTextStyle.copyWith(
