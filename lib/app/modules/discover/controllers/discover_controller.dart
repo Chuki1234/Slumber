@@ -1,16 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:just_audio/just_audio.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../layout/controllers/layout_controller.dart';
+
 
 class DiscoverController extends GetxController with GetSingleTickerProviderStateMixin {
   late TabController tabController;
   final ScrollController scrollController = ScrollController();
-
-  final RxInt playingIndex = (-1).obs;
-  final RxBool isPlaying = false.obs;
-
-  late AudioPlayer player;
 
   final RxList<Map<String, dynamic>> soundsList = <Map<String, dynamic>>[].obs;
   final RxList<Map<String, dynamic>> musicList = <Map<String, dynamic>>[].obs;
@@ -20,13 +16,6 @@ class DiscoverController extends GetxController with GetSingleTickerProviderStat
   void onInit() {
     super.onInit();
     tabController = TabController(length: 3, vsync: this);
-    player = AudioPlayer();
-
-    player.playerStateStream.listen((state) {
-      if (state.processingState == ProcessingState.completed) {
-        stopMusic();
-      }
-    });
 
     fetchSoundsList();
     fetchMusicList();
@@ -60,35 +49,24 @@ class DiscoverController extends GetxController with GetSingleTickerProviderStat
     storiesList.assignAll(data.cast<Map<String, dynamic>>());
   }
 
+  void playMusic(int index) {
+    final layoutController = Get.find<LayoutController>();
+    final song = musicList[index];
+
+    layoutController.playSong(
+      Song(
+        title: song['title'] ?? '',
+        artist: song['description'] ?? '',
+        imageUrl: song['image_url'] ?? '',
+        audioUrl: song['audio_url'] ?? '',
+      ),
+    );
+  }
+
   @override
   void onClose() {
-    player.dispose();
     tabController.dispose();
     scrollController.dispose();
     super.onClose();
-  }
-
-  void playMusic(int index) async {
-    if (playingIndex.value == index) {
-      if (isPlaying.value) {
-        await player.pause();
-        isPlaying.value = false;
-      } else {
-        await player.play();
-        isPlaying.value = true;
-      }
-    } else {
-      playingIndex.value = index;
-      isPlaying.value = true;
-      await player.stop();
-      await player.setUrl(musicList[index]['audio_url'] ?? '');
-      await player.play();
-    }
-  }
-
-  void stopMusic() async {
-    await player.stop();
-    isPlaying.value = false;
-    playingIndex.value = -1;
   }
 }

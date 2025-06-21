@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 class PlayMusicController extends GetxController {
   late Map<String, dynamic> music;
   late AudioPlayer player;
+
   final RxBool isPlaying = false.obs;
   final Rx<Duration> position = Duration.zero.obs;
   final Rx<Duration> duration = Duration.zero.obs;
@@ -18,8 +19,12 @@ class PlayMusicController extends GetxController {
 
   Future<void> _initPlayer() async {
     await player.setUrl(music['audio_url'] ?? '');
-    duration.value = player.duration ?? Duration.zero;
+
+    // Nghe position và duration stream
     player.positionStream.listen((pos) => position.value = pos);
+    player.durationStream.listen((dur) {
+      if (dur != null) duration.value = dur;
+    });
     player.playerStateStream.listen((state) {
       isPlaying.value = state.playing;
     });
