@@ -42,7 +42,7 @@ class LoginView extends GetView<LoginController> {
                 ),
                 child: InkWell(
                   borderRadius: BorderRadius.circular(30),
-                  onTap: controller.loginWithGoogle,
+                  onTap: controller.signInWithGoogle,
                   child: Stack(
                     children: [
                       /// 📌 Text luôn nằm giữa

@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "340407306537",
+    "project_id": "slumber-c379b",
+    "storage_bucket": "slumber-c379b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:340407306537:android:dd296b99ba425a0eb9cf38",
+        "android_client_info": {
+          "package_name": "com.slumber.slumber"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "340407306537-3ibcg7ikvu4eieotqc8brf6amj6n349q.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyADS7-8xmWtmAeGsx8Oa9vTkiDv4xtDh8Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "340407306537-3ibcg7ikvu4eieotqc8brf6amj6n349q.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
