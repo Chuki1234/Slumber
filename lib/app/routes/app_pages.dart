@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:slumber/app/modules/play_music/bindings/play_music_binding.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../modules/Alarm/bindings/alarm_binding.dart';
 import '../modules/Alarm/views/alarm_view.dart';
@@ -30,7 +31,10 @@ part 'app_routes.dart';
 class AppPages {
   AppPages._();
 
-  static const INITIAL = Routes.LOGIN;
+  static final INITIAL =
+  Supabase.instance.client.auth.currentSession?.user != null
+      ? Routes.LAYOUT
+      : Routes.LOGIN;
 
   static final routes = [
     GetPage(

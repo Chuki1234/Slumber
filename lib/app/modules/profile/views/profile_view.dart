@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../controllers/profile_controller.dart';
 
 class ProfileView extends GetView<ProfileController> {
@@ -7,6 +8,11 @@ class ProfileView extends GetView<ProfileController> {
 
   @override
   Widget build(BuildContext context) {
+    final user = Supabase.instance.client.auth.currentUser;
+
+    final avatarUrl = user?.userMetadata?['avatar_url'] ?? '';
+    final name = user?.userMetadata?['full_name'] ?? 'Chưa có tên';
+
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: Stack(
@@ -27,28 +33,33 @@ class ProfileView extends GetView<ProfileController> {
                 const SizedBox(height: 100),
                 Column(
                   children: [
-                    Container(
-                      width: 120, // Adjust size as needed
+                    avatarUrl.isNotEmpty
+                        ? CircleAvatar(
+                      radius: 60,
+                      backgroundImage: NetworkImage(avatarUrl),
+                    )
+                        : Container(
+                      width: 120,
                       height: 120,
                       decoration: BoxDecoration(
-                        color: Colors.white24, // Background color
-                        shape: BoxShape.circle, // Circular shape
+                        color: Colors.white24,
+                        shape: BoxShape.circle,
                       ),
                       child: const Icon(
                         Icons.person,
-                        size: 60, // Adjust icon size
+                        size: 60,
                         color: Colors.white,
                       ),
                     ),
                     const SizedBox(height: 12),
-                    Obx(() => Text(
-                      controller.userName.value,
+                    Text(
+                      name,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                       ),
-                    )),
+                    ),
                   ],
                 ),
 
@@ -56,7 +67,7 @@ class ProfileView extends GetView<ProfileController> {
 
                 /// ⚙️ Settings Container
                 Padding(
-                  padding: const EdgeInsets.only(top: 100), // Moves the container down by 40px
+                  padding: const EdgeInsets.only(top: 100),
                   child: Container(
                     margin: const EdgeInsets.symmetric(horizontal: 24),
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
@@ -88,7 +99,7 @@ class ProfileView extends GetView<ProfileController> {
                         ),
                         const Divider(color: Colors.white24, height: 32),
                         GestureDetector(
-                          onTap: controller.logout,
+                          onTap: controller.SignOut,
                           child: Row(
                             children: const [
                               Icon(Icons.logout, color: Colors.white),
