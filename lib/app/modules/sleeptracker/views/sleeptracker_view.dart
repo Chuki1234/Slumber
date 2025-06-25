@@ -98,7 +98,6 @@ class SleeptrackerView extends GetView<SleepTrackerController> {
                       ),
                     ),
                     const SizedBox(height: 32),
-                    // ✅ NÚT ĐÃ ĐỒNG BỘ GIAO DIỆN
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 24),
                       child: SizedBox(

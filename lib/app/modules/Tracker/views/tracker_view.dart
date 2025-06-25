@@ -121,7 +121,9 @@ class _TrackerViewState extends State<TrackerView> {
                       _optionTile(
                         icon: Icons.music_note,
                         label: "Sound & Music",
-                        trailingColor: Colors.grey,
+                        trailingColor:
+
+                        Colors.grey,
                         onTap: () => Get.to(() => DiscoverView(fromTracker: true), binding: DiscoverBinding()),
                       ),
                       const Divider(color: Colors.white30),

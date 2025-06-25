@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../Tracker/views/tracker_view.dart';
 import '../../layout/controllers/layout_controller.dart';
 
 class PlayMusicView extends StatefulWidget {
@@ -179,24 +180,31 @@ class _PlayMusicViewState extends State<PlayMusicView>
                 )),
                 const SizedBox(height: 32),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: SizedBox(
-                    width: double.infinity,
-                    height: 48,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(24),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: SizedBox(
+                      width: double.infinity,
+                      height: 56,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Get.to(() => const TrackerView());
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(28),
+                          ),
+                          elevation: 0,
                         ),
-                      ),
-                      onPressed: () {},
-                      child: const Text(
-                        'Sleep now',
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                        child: const Text(
+                          'Sleep now',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 20,
+                            fontFamily: 'Roboto',
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
                       ),
                     ),
