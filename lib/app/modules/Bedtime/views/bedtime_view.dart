@@ -29,257 +29,208 @@ class _BedtimeViewState extends State<BedtimeView> {
             colorBlendMode: BlendMode.darken,
           ),
           SafeArea(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.arrow_back, color: Colors.white),
-                  onPressed: () => Get.back(),
-                ),
-                const Padding(
-                  padding: EdgeInsets.fromLTRB(24, 0, 24, 16),
-                  child: Text(
-                    'BedTime',
-                    style: TextStyle(
-                      fontSize: 32,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1.2,
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back, color: Colors.white),
+                    onPressed: () => Get.back(),
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.fromLTRB(24, 0, 24, 16),
+                    child: Text(
+                      'BedTime',
+                      style: TextStyle(
+                        fontSize: 32,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.2,
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 24),
-                Center(
-                  child: Column(
-                    children: [
-                      // Vùng chỉnh giờ bedtime
-                      Obx(() {
-                        final time = controller.bedTime.value;
-                        final hour = time.hour.toString().padLeft(2, '0');
-                        final minute = time.minute.toString().padLeft(2, '0');
-                        return Container(
-                          width: 320,
-                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.12),
-                            borderRadius: BorderRadius.circular(32),
-                            border: Border.all(color: Colors.white.withOpacity(0.4), width: 2.5),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.08),
-                                blurRadius: 16,
-                                offset: const Offset(0, 6),
-                              ),
-                            ],
-                          ),
-                          child: Column(
-                            children: [
-                              Text(
-                                "$hour:$minute",
-                                style: const TextStyle(
-                                  fontSize: 42,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: 2,
-                                ),
-                              ),
-                              const SizedBox(height: 18),
-                              ElevatedButton.icon(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.deepPurpleAccent,
-                                  foregroundColor: Colors.white,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(16),
-                                  ),
-                                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                                ),
-                                icon: const Icon(Icons.access_time),
-                                label: const Text("Change Time", style: TextStyle(fontSize: 16)),
-                                onPressed: () async {
-                                  final newTime = await showTimePicker(
-                                    context: context,
-                                    initialTime: controller.bedTime.value,
-                                  );
-                                  if (!context.mounted) return;
-                                  if (newTime != null) {
-                                    controller.updateBedTime(newTime);
-                                  }
-                                },
-                              ),
-                            ],
-                          ),
-                        );
-                      }),
-
-                      const SizedBox(height: 24), // 👈 khoảng cách giữa box giờ và dòng chữ
-
-                      // Dòng text sleep goal
-                      Obx(() {
-                        final bedTime = controller.bedTime.value;
-                        final alarmTime = controller.alarmStart.value;
-
-                        int toMinutes(TimeOfDay t) => t.hour * 60 + t.minute;
-                        final diff = (toMinutes(alarmTime) - toMinutes(bedTime) + 1440) % 1440;
-                        final totalHours = (diff / 60).toStringAsFixed(1);
-
-                        final hours = diff ~/ 60;
-                        final minutes = diff % 60;
-                        // Build the text: "8 h 30 m" hoặc "8 h"
-                        final goalText = minutes == 0 ? '$hours h' : '$hours h $minutes m';
-
-                        return Column(
-                          children: [
-                            RichText(
-                              text: TextSpan(
-                                style: const TextStyle(color: Colors.white70, fontSize: 16),
-                                children: [
-                                  const TextSpan(text: 'Your sleep goal is '),
-                                  TextSpan(
-                                    text: goalText,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: Color(0xFF7F7CFF),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 3),
-                            const Text(
-                              'Based on your bedtime and alarm time',
-                              style: TextStyle(color: Colors.white70, fontSize: 14),
-                            ),
-                          ],
-                        );
-                      })
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 10),
-                // _optionListTile(
-                //   title: 'Discover',
-                //   trailing: const SizedBox(height: 24),
-                // ),
-                const SizedBox(height: 17),
-                // Khối nhắc ngủ với Switch
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF2B174A),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  const SizedBox(height: 24),
+                  Center(
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // 🔹 Dòng Remind me to sleep + Switch
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              'Remind me to sleep',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            Switch(
-                              value: isReminderEnabled,
-                              activeColor: Colors.white,
-                              activeTrackColor: Colors.deepPurpleAccent,
-                              inactiveTrackColor: Colors.grey.shade700,
-                              onChanged: (val) {
-                                setState(() => isReminderEnabled = val);
-                              },
-                            ),
-                          ],
-                        ),
-
-                        if (isReminderEnabled) ...[
-                          const SizedBox(height: 12), // 👈 Thêm khoảng trước dòng phân cách
-                          const Divider(color: Colors.white24),
-                          const SizedBox(height: 12), // 👈 Thêm khoảng sau dòng phân cách
-
-                          GestureDetector(
-                            onTap: () => _showRemindDialog(context),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                const Text(
-                                  'Remind in advance',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                Row(
-                                  children: [
-                                    Text(
-                                      selectedRemindHours > 0
-                                          ? '${selectedRemindHours}h ${selectedRemindMinutes}min'
-                                          : '${selectedRemindMinutes} min',
-                                      style: const TextStyle(color: Colors.white70, fontSize: 16),
-                                    ),
-                                    const SizedBox(width: 6),
-                                    const Icon(Icons.chevron_right, size: 18, color: Colors.white),
-                                  ],
+                        Obx(() {
+                          final time = controller.bedTime.value;
+                          final hour = time.hour.toString().padLeft(2, '0');
+                          final minute = time.minute.toString().padLeft(2, '0');
+                          return Container(
+                            width: 320,
+                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.12),
+                              borderRadius: BorderRadius.circular(32),
+                              border: Border.all(color: Colors.white.withOpacity(0.4), width: 2.5),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.08),
+                                  blurRadius: 16,
+                                  offset: const Offset(0, 6),
                                 ),
                               ],
                             ),
+                            child: Column(
+                              children: [
+                                Text(
+                                  "$hour:$minute",
+                                  style: const TextStyle(
+                                    fontSize: 42,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 2,
+                                  ),
+                                ),
+                                const SizedBox(height: 18),
+                                ElevatedButton.icon(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.deepPurpleAccent,
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                                  ),
+                                  icon: const Icon(Icons.access_time),
+                                  label: const Text("Change Time", style: TextStyle(fontSize: 16)),
+                                  onPressed: () async {
+                                    final newTime = await showTimePicker(
+                                      context: context,
+                                      initialTime: controller.bedTime.value,
+                                    );
+                                    if (!context.mounted) return;
+                                    if (newTime != null) {
+                                      controller.updateBedTime(newTime);
+                                    }
+                                  },
+                                ),
+                              ],
+                            ),
+                          );
+                        }),
+
+                        const SizedBox(height: 24),
+
+                        Obx(() {
+                          final bedTime = controller.bedTime.value;
+                          final alarmTime = controller.alarmStart.value;
+
+                          int toMinutes(TimeOfDay t) => t.hour * 60 + t.minute;
+                          final diff = (toMinutes(alarmTime) - toMinutes(bedTime) + 1440) % 1440;
+
+                          final hours = diff ~/ 60;
+                          final minutes = diff % 60;
+                          final goalText = minutes == 0 ? '$hours h' : '$hours h $minutes m';
+
+                          return Column(
+                            children: [
+                              RichText(
+                                text: TextSpan(
+                                  style: const TextStyle(color: Colors.white70, fontSize: 16),
+                                  children: [
+                                    const TextSpan(text: 'Your sleep goal is '),
+                                    TextSpan(
+                                      text: goalText,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(0xFF7F7CFF),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 3),
+                              const Text(
+                                'Based on your bedtime and alarm time',
+                                style: TextStyle(color: Colors.white70, fontSize: 14),
+                              ),
+                            ],
+                          );
+                        }),
+
+                        const SizedBox(height: 24),
+
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 24),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF2B174A),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Text(
+                                      'Remind me to sleep',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    Switch(
+                                      value: isReminderEnabled,
+                                      activeColor: Colors.white,
+                                      activeTrackColor: Colors.deepPurpleAccent,
+                                      inactiveTrackColor: Colors.grey.shade700,
+                                      onChanged: (val) {
+                                        setState(() => isReminderEnabled = val);
+                                      },
+                                    ),
+                                  ],
+                                ),
+
+                                if (isReminderEnabled) ...[
+                                  const SizedBox(height: 12),
+                                  const Divider(color: Colors.white24),
+                                  const SizedBox(height: 12),
+                                  GestureDetector(
+                                    onTap: () => _showRemindDialog(context),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        const Text(
+                                          'Remind in advance',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                        Row(
+                                          children: [
+                                            Text(
+                                              selectedRemindHours > 0
+                                                  ? '${selectedRemindHours}h ${selectedRemindMinutes}min'
+                                                  : '${selectedRemindMinutes} min',
+                                              style: const TextStyle(color: Colors.white70, fontSize: 16),
+                                            ),
+                                            const SizedBox(width: 6),
+                                            const Icon(Icons.chevron_right, size: 18, color: Colors.white),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
                           ),
-                        ],
+                        ),
                       ],
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _optionListTile({
-    required String title,
-    Widget? trailing,
-    VoidCallback? onTap,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24.0),
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          height: 65,
-          decoration: BoxDecoration(
-            color: const Color(0xFF2B174A),
-            borderRadius: BorderRadius.circular(20),
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Center(
-                child: Text(
-                  title,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16,
-                  ),
-                ),
-              ),
-              if (trailing != null)
-                Center(child: trailing)
-              else
-                const Icon(Icons.arrow_forward_ios_rounded,
-                    color: Colors.white, size: 17),
-            ],
-          ),
-        ),
       ),
     );
   }
