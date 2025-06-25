@@ -18,6 +18,10 @@ class TrackerController extends GetxController {
   void onClose() {
     super.onClose();
   }
+  final selectedSongName = 'No song selected'.obs;
 
+  void setSelectedSong(String name) {
+    selectedSongName.value = name;
+  }
   void increment() => count.value++;
 }

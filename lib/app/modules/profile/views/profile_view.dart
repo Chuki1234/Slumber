@@ -17,15 +17,12 @@ class ProfileView extends GetView<ProfileController> {
       backgroundColor: Colors.transparent,
       body: Stack(
         children: [
-          /// 🌌 Background
           Positioned.fill(
             child: Image.asset(
               'assets/images/Background.png',
               fit: BoxFit.cover,
             ),
           ),
-
-          /// 📦 Main Content
           Padding(
             padding: const EdgeInsets.only(top: 50),
             child: Column(
@@ -35,22 +32,22 @@ class ProfileView extends GetView<ProfileController> {
                   children: [
                     avatarUrl.isNotEmpty
                         ? CircleAvatar(
-                      radius: 60,
-                      backgroundImage: NetworkImage(avatarUrl),
-                    )
+                          radius: 60,
+                          backgroundImage: NetworkImage(avatarUrl),
+                        )
                         : Container(
-                      width: 120,
-                      height: 120,
-                      decoration: BoxDecoration(
-                        color: Colors.white24,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.person,
-                        size: 60,
-                        color: Colors.white,
-                      ),
-                    ),
+                          width: 120,
+                          height: 120,
+                          decoration: BoxDecoration(
+                            color: Colors.white24,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.person,
+                            size: 60,
+                            color: Colors.white,
+                          ),
+                        ),
                     const SizedBox(height: 12),
                     Text(
                       name,
@@ -70,7 +67,10 @@ class ProfileView extends GetView<ProfileController> {
                   padding: const EdgeInsets.only(top: 100),
                   child: Container(
                     margin: const EdgeInsets.symmetric(horizontal: 24),
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 24,
+                    ),
                     decoration: BoxDecoration(
                       color: const Color(0xFF2A1C46),
                       borderRadius: BorderRadius.circular(24),
@@ -93,7 +93,10 @@ class ProfileView extends GetView<ProfileController> {
                             SizedBox(width: 16),
                             Text(
                               'Connected',
-                              style: TextStyle(color: Colors.white, fontSize: 16),
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                              ),
                             ),
                           ],
                         ),
@@ -106,7 +109,10 @@ class ProfileView extends GetView<ProfileController> {
                               SizedBox(width: 16),
                               Text(
                                 'Log out',
-                                style: TextStyle(color: Colors.white, fontSize: 16),
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                ),
                               ),
                             ],
                           ),
