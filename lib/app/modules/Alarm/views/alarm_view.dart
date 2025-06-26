@@ -34,12 +34,17 @@ class _AlarmViewState extends State<AlarmView> {
             colorBlendMode: BlendMode.darken,
           ),
           SafeArea(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: ListView(
               children: [
-                IconButton(
-                  icon: const Icon(Icons.arrow_back, color: Colors.white),
-                  onPressed: () => Get.back(),
+                Padding(
+                  padding: const EdgeInsets.only(left: 8.0, top: 8.0),
+                  child: Align(
+                    alignment: Alignment.topLeft,
+                    child: IconButton(
+                      icon: const Icon(Icons.arrow_back, color: Colors.white),
+                      onPressed: () => Get.back(),
+                    ),
+                  ),
                 ),
                 const Padding(
                   padding: EdgeInsets.fromLTRB(24, 0, 24, 16),
@@ -116,7 +121,50 @@ class _AlarmViewState extends State<AlarmView> {
                     );
                   }),
                 ),
-                const SizedBox(height: 48),
+
+                const SizedBox(height: 24),
+
+// 👉 Sleep goal nằm giữa và căn giữa
+                Center(
+                  child: Obx(() {
+                    final bedTime = controller.bedTime.value;
+                    final alarmTime = controller.alarmStart.value;
+
+                    int toMinutes(TimeOfDay t) => t.hour * 60 + t.minute;
+                    final diff = (toMinutes(alarmTime) - toMinutes(bedTime) + 1440) % 1440;
+                    final hours = diff ~/ 60;
+                    final minutes = diff % 60;
+                    final goalText = minutes == 0 ? '$hours h' : '$hours h $minutes m';
+
+                    return Column(
+                      children: [
+                        RichText(
+                          textAlign: TextAlign.center,
+                          text: TextSpan(
+                            style: const TextStyle(color: Colors.white70, fontSize: 16),
+                            children: [
+                              const TextSpan(text: 'Your sleep goal is '),
+                              TextSpan(
+                                text: goalText,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF7F7CFF),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 3),
+                        const Text(
+                          'Based on your bedtime and alarm time',
+                          style: TextStyle(color: Colors.white70, fontSize: 14),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    );
+                  }),
+                ),
+                const SizedBox(height: 24),
 
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -355,8 +403,8 @@ class _AlarmViewState extends State<AlarmView> {
                   ),
                 ),
               ],
-            ),
-          ),
+              ),
+            )
         ],
       ),
     );
