@@ -1,6 +1,8 @@
   import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'app/modules/Alarm/controllers/alarm_controller.dart';
+import 'app/modules/Tracker/controllers/tracker_controller.dart';
 import 'app/routes/app_pages.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -8,7 +10,8 @@ import 'firebase_options.dart';
 
 
 void main() async {
-
+  Get.put(AlarmController());         // nếu dùng báo thức
+  Get.put(TrackerController());
   WidgetsFlutterBinding.ensureInitialized();
 
   await Supabase.initialize(

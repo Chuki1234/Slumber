@@ -112,7 +112,9 @@ class _AlarmViewState extends State<AlarmView> {
                               );
                               if (!context.mounted) return;
                               if (newTime != null) {
-                                controller.updateAlarmStart(newTime);
+                                final alarmController = Get.find<AlarmController>();
+                                alarmController.updateAlarmTime(newTime);                    print("🕒 Đã cập nhật báo thức thành: ${newTime.hour}:${newTime.minute}");
+
                               }
                             },
                           ),
@@ -385,8 +387,7 @@ class _AlarmViewState extends State<AlarmView> {
                             ),
                           ),
                           Obx(() {
-                            final snooze = controller.snoozeMinutes.value;
-                            return Row(
+                            final snooze = alarmController.snoozeMinutes.value;                            return Row(
                               children: [
                                 Text(
                                   snooze == 0 ? 'Off' : '$snooze min',
@@ -685,8 +686,7 @@ class _AlarmViewState extends State<AlarmView> {
                       ),
                       ElevatedButton(
                         onPressed: () {
-                          controller.snoozeMinutes.value = tempSnooze;
-                          Navigator.pop(context);
+                          alarmController.snoozeMinutes.value = tempSnooze;                          Navigator.pop(context);
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.deepPurpleAccent,

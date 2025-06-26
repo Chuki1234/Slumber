@@ -7,6 +7,7 @@ import '../../discover/views/discover_view.dart';
 import '../../discover/bindings/discover_binding.dart';
 import '../../layout/controllers/layout_controller.dart';
 import '../../sleeptracker/controllers/sleeptracker_controller.dart';
+import '../controllers/tracker_controller.dart';
 
 class TrackerView extends StatefulWidget {
   const TrackerView({super.key});
@@ -71,9 +72,59 @@ class _TrackerViewState extends State<TrackerView> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: Stack(
+
         fit: StackFit.expand,
         children: [
           Image.asset("assets/images/Background.png", fit: BoxFit.cover),
+          Obx(() {
+            final trackerCtrl = Get.find<TrackerController>();
+            if (!trackerCtrl.showAlarmOverlay.value) return const SizedBox.shrink();
+
+            return Container(
+              color: Colors.black.withOpacity(0.85),
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text(
+                      'Wake up!!!',
+                      style: TextStyle(
+                        fontSize: 36,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.orangeAccent,
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      ),
+                      onPressed: () {
+                        trackerCtrl.snooze();
+                        trackerCtrl.showAlarmOverlay.value = false;
+                      },
+                      child: const Text('Snooze', style: TextStyle(fontSize: 16, color: Colors.white)),
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.redAccent,
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      ),
+                      onPressed: () {
+                        trackerCtrl.stopAlarm();
+                        trackerCtrl.showAlarmOverlay.value = false;
+                      },
+                      child: const Text('Stop', style: TextStyle(fontSize: 16, color: Colors.white)),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }),
           SafeArea(
             child: Column(
               children: [
@@ -92,6 +143,7 @@ class _TrackerViewState extends State<TrackerView> {
                             height: 100,
                             fit: BoxFit.contain,
                           ),
+
                         ),
                       ),
                       Obx(() => Text(

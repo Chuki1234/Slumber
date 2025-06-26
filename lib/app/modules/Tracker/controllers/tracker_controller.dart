@@ -1,15 +1,16 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:vibration/vibration.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:vibration/vibration.dart';
 
-import '../../alarm/controllers/alarm_controller.dart';
+import '../../Alarm/controllers/alarm_controller.dart';
 
 class TrackerController extends GetxController {
   final count = 0.obs;
   final selectedSongName = 'No song selected'.obs;
   final isAlarmRinging = false.obs;
+  final showAlarmOverlay = false.obs;
 
   Timer? _checkTimer;
   final _audioPlayer = AudioPlayer();
@@ -18,9 +19,17 @@ class TrackerController extends GetxController {
   void onInit() {
     super.onInit();
 
-    // Check alarm every 10s
-    _checkTimer = Timer.periodic(const Duration(seconds: 10), (_) {
-      triggerAlarmIfNeeded();
+    _checkTimer = Timer.periodic(const Duration(seconds: 10), (timer) async {
+      final alarmController = Get.find<AlarmController>();
+      final now = TimeOfDay.now();
+
+      print("🕒 Now: ${now.hour}:${now.minute}, Alarm: ${alarmController.alarmTime.value.hour}:${alarmController.alarmTime.value.minute}");
+
+      alarmController.checkAlarmAndTrigger(() async {
+        print("⏰ Alarm triggered!");
+        showAlarmOverlay.value = true;
+        await triggerAlarmIfNeeded(); // 🔊 Chuông + Rung
+      });
     });
   }
 
@@ -76,6 +85,9 @@ class TrackerController extends GetxController {
     isAlarmRinging.value = false;
     Vibration.cancel();
     _audioPlayer.stop();
+
+    final alarmCtrl = Get.find<AlarmController>();
+    alarmCtrl.isTriggered.value = false; // ✅ Cho phép báo lại
   }
 
   /// 😴 Snooze báo thức X phút
@@ -92,7 +104,8 @@ class TrackerController extends GetxController {
       alarmCtrl.alarmTime.value = snoozeTime;
     }
 
-    stopAlarm(); // tắt chuông
+    alarmCtrl.isTriggered.value = false; // ✅ cho phép báo lại
+    stopAlarm(); // tắt chuông + vibration
   }
 
   /// 🔁 Gọi lại báo thức thủ công (dùng cho debug/test)

@@ -22,4 +22,5 @@ class AlarmSound {
       volume: (json['volume'] ?? 1.0).toDouble(),
     );
   }
+
 }
