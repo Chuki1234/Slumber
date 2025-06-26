@@ -16,7 +16,8 @@ class LayoutView extends GetView<LayoutController> {
             Expanded(
               child: controller.pages[controller.currentIndex.value],
             ),
-            // Mini player
+
+            // Mini player (UI đẹp, bo góc, không viền đen)
             if (controller.currentSong.value != null)
               GestureDetector(
                 onTap: () {
@@ -27,8 +28,10 @@ class LayoutView extends GetView<LayoutController> {
                   );
                 },
                 child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 6.0, horizontal: 12.0),
-                  color: Colors.grey[850],
+                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF1E1A2D),
+                  ),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
@@ -48,7 +51,7 @@ class LayoutView extends GetView<LayoutController> {
                           ),
                         ),
                       ),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: 12),
 
                       // Tiêu đề
                       Expanded(
