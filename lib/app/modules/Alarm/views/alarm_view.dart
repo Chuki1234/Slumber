@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../Bedtime/views/bedtime_view.dart';
 import '../../sleeptracker/controllers/sleeptracker_controller.dart';
+import '../controllers/alarm_controller.dart';
 
 class AlarmView extends StatefulWidget {
   const AlarmView({super.key});
@@ -12,6 +13,13 @@ class AlarmView extends StatefulWidget {
 
 class _AlarmViewState extends State<AlarmView> {
   final controller = Get.find<SleepTrackerController>();
+  final alarmController = Get.find<AlarmController>(); // ✅ THÊM DÒNG NÀY
+
+  @override
+  void initState() {
+    super.initState();
+    alarmController.loadAlarmSounds(); // ✅ GỌI LOAD NHẠC CHUÔNG
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -109,14 +117,88 @@ class _AlarmViewState extends State<AlarmView> {
                   }),
                 ),
                 const SizedBox(height: 48),
-                _optionListTile(
-                  title: 'Bedtime',
-                  onTap: () {
-                    // Gọi controller nếu cần
-                    // Get.put(BedtimeController()); // nếu chưa dùng binding
-                    Get.to(() => const BedtimeView()); // nếu có binding thì thêm: , binding: BedtimeBinding()
-                  },
+
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF2B174A),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Column(
+                      children: [
+                        // 🎵 Alarm Ringtone
+                        Obx(() {
+                          final sound = alarmController.selectedAlarmSound.value;
+                          return ListTile(
+                            title: const Text("Alarm ringtone", style: TextStyle(color: Colors.white)),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  sound?.name ?? "None",
+                                  style: const TextStyle(color: Colors.white70),
+                                ),
+                                const SizedBox(width: 4),
+                                const Icon(Icons.chevron_right, color: Colors.white70),
+                              ],
+                            ),
+                            onTap: () => _showRingtonePicker(context),
+                          );
+                        }),
+
+                        const Divider(color: Colors.white24, height: 1),
+
+                        // 🔊 Volume Slider
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.volume_mute, color: Colors.white70),
+                              Expanded(
+                                child: Obx(() {
+                                  return Slider(
+                                    value: controller.alarmVolume.value,
+                                    min: 0.0,
+                                    max: 1.0,
+                                    divisions: 10,
+                                    onChanged: (value) => controller.alarmVolume.value = value,
+                                    activeColor: Colors.deepPurpleAccent,
+                                    inactiveColor: Colors.white30,
+                                  );
+                                }),
+                              ),
+                              const Icon(Icons.volume_up, color: Colors.white70),
+                            ],
+                          ),
+                        ),
+
+                        const Divider(color: Colors.white24, height: 1),
+
+                        // 📳 Vibration
+                        Obx(() {
+                          return SwitchListTile(
+                            title: const Text("Vibration", style: TextStyle(color: Colors.white)),
+                            value: controller.vibrationEnabled.value,
+                            onChanged: (val) => controller.vibrationEnabled.value = val,
+                            activeColor: Colors.white,
+                            activeTrackColor: Colors.deepPurpleAccent,
+                            inactiveTrackColor: Colors.grey.shade700,
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                          );
+                        }),
+                      ],
+                    ),
+                  ),
                 ),
+                // _optionListTile(
+                //   title: 'Bedtime',
+                //   onTap: () {
+                //     // Gọi controller nếu cần
+                //     // Get.put(BedtimeController()); // nếu chưa dùng binding
+                //     Get.to(() => const BedtimeView()); // nếu có binding thì thêm: , binding: BedtimeBinding()
+                //   },
+                // ),
                 const SizedBox(height: 16),
 
                 Obx(() {
@@ -310,6 +392,121 @@ class _AlarmViewState extends State<AlarmView> {
           ),
         ),
       ),
+    );
+  }
+
+  void _showRingtonePicker(BuildContext context) {
+    final controller = Get.find<AlarmController>();
+
+    int tempIndex = controller.alarmSounds.indexWhere((s) =>
+    s.id == controller.selectedAlarmSound.value?.id);
+    if (tempIndex == -1) tempIndex = 0;
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setStateDialog) {
+            return Dialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24),
+              ),
+              backgroundColor: const Color(0xFF1C103B),
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: controller.alarmSounds.isEmpty
+                    ? const SizedBox(
+                  height: 150,
+                  child: Center(
+                    child: CircularProgressIndicator(color: Colors.deepPurpleAccent),
+                  ),
+                )
+                    : Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text(
+                      'Alarm ringtone',
+                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Vòng chọn nhạc chuông
+                    Container(
+                      height: 160,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        color: Colors.black.withOpacity(0.15),
+                      ),
+                      child: ListWheelScrollView.useDelegate(
+                        itemExtent: 40,
+                        diameterRatio: 1.2,
+                        controller: FixedExtentScrollController(initialItem: tempIndex),
+                        physics: const FixedExtentScrollPhysics(),
+                        onSelectedItemChanged: (index) {
+                          setStateDialog(() {
+                            tempIndex = index;
+                          });
+                          controller.playPreview(controller.alarmSounds[index].publicUrl);
+                        },
+                        childDelegate: ListWheelChildBuilderDelegate(
+                          childCount: controller.alarmSounds.length,
+                          builder: (context, index) {
+                            final sound = controller.alarmSounds[index];
+                            return Center(
+                              child: Text(
+                                sound.name,
+                                style: const TextStyle(color: Colors.white, fontSize: 18),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 24),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        TextButton(
+                          onPressed: () {
+                            controller.stopPreview();
+                            Navigator.pop(context);
+                          },
+                          style: TextButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            foregroundColor: Colors.black,
+                            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                          ),
+                          child: const Text("Cancel"),
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            controller.selectedAlarmSound.value = controller.alarmSounds[tempIndex];
+                            controller.stopPreview();
+                            Navigator.pop(context);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.deepPurpleAccent,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                          ),
+                          child: const Text("Save"),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 
