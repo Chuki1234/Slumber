@@ -5,6 +5,7 @@ import '../../Alarm/bindings/alarm_binding.dart';
 import '../../Alarm/views/alarm_view.dart';
 import '../../discover/views/discover_view.dart';
 import '../../discover/bindings/discover_binding.dart';
+import '../../layout/controllers/layout_controller.dart';
 import '../../sleeptracker/controllers/sleeptracker_controller.dart';
 
 class TrackerView extends StatefulWidget {
@@ -16,6 +17,8 @@ class TrackerView extends StatefulWidget {
 
 class _TrackerViewState extends State<TrackerView> {
   final controller = Get.find<SleepTrackerController>();
+  final musicController = Get.find<LayoutController>(); // thêm dòng này ở đầu build()
+
   final RxString time = ''.obs;
   final RxString date = ''.obs;
   final RxDouble ambientNoise = (-41.0).obs;
@@ -46,7 +49,7 @@ class _TrackerViewState extends State<TrackerView> {
 
   void _startHold() {
     _isHolding = true;
-    _holdTimer = Timer(const Duration(seconds: 3), () {
+    _holdTimer = Timer(const Duration(seconds: 1), () {
       if (_isHolding) Get.back(); // Quay về SleeptrackerView
     });
   }
@@ -118,14 +121,20 @@ class _TrackerViewState extends State<TrackerView> {
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: Column(
                     children: [
-                      _optionTile(
-                        icon: Icons.music_note,
-                        label: "Sound & Music",
-                        trailingColor:
 
-                        Colors.grey,
-                        onTap: () => Get.to(() => DiscoverView(fromTracker: true), binding: DiscoverBinding()),
-                      ),
+                  _optionTile(
+                  icon: Icons.music_note,
+                  label: "Sound & Music",
+                  subtitle: Obx(() {
+                    final song = musicController.currentSong.value;
+                    return Text(
+                      song != null ? song.title : "No song playing",
+                      style: const TextStyle(color: Colors.white60, fontSize: 14),
+                    );
+                  }),
+                  trailingColor: Colors.grey,
+                  onTap: () => Get.to(() => DiscoverView(fromTracker: true), binding: DiscoverBinding()),
+                ),
                       const Divider(color: Colors.white30),
                       _optionTile(
                         icon: Icons.alarm,
