@@ -4,11 +4,17 @@ import '../../layout/controllers/layout_controller.dart';
 import '../../play_music/views/play_music_view.dart';
 import '../controllers/discover_controller.dart';
 
-
-class DiscoverView extends GetView<DiscoverController> {
+class DiscoverView extends StatefulWidget {
   final bool fromTracker;
-  DiscoverView({Key? key, this.fromTracker = false}) : super(key: key);
+  const DiscoverView({Key? key, this.fromTracker = false}) : super(key: key);
 
+  @override
+  State<DiscoverView> createState() => _DiscoverViewState();
+}
+
+class _DiscoverViewState extends State<DiscoverView> with SingleTickerProviderStateMixin {
+  late final TabController tabController;
+  final controller = Get.put(DiscoverController());
   final GlobalKey soundsKey = GlobalKey();
   final GlobalKey musicKey = GlobalKey();
   final GlobalKey storiesKey = GlobalKey();
@@ -46,16 +52,32 @@ class DiscoverView extends GetView<DiscoverController> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  void initState() {
+    super.initState();
+    controller.tabController = TabController(length: 3, vsync: this);
     controller.tabController.addListener(() {
       if (controller.tabController.indexIsChanging) {
         _scrollToSection(controller.tabController.index);
       }
     });
+    controller.fetchSoundsList();
+    controller.fetchMusicList();
+    controller.fetchStoriesList();
+  }
 
+  @override
+  void dispose() {
+    controller.tabController.dispose();
+    controller.scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       backgroundColor: Colors.black,
-      appBar: fromTracker
+      appBar: widget.fromTracker
           ? AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -108,7 +130,8 @@ class DiscoverView extends GetView<DiscoverController> {
                 Expanded(
                   child: SingleChildScrollView(
                     controller: controller.scrollController,
-                    padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom + 60),
+                    padding: EdgeInsets.only(
+                        bottom: MediaQuery.of(context).padding.bottom + 60),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -157,13 +180,14 @@ class DiscoverView extends GetView<DiscoverController> {
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
                             itemCount: controller.storiesList.length,
-                            separatorBuilder: (_, __) => const Divider(color: Colors.white24),
+                            separatorBuilder: (_, __) =>
+                            const Divider(color: Colors.white24),
                             itemBuilder: (context, index) {
                               final item = controller.storiesList[index];
                               return GestureDetector(
                                 onTap: () {
-                                  final layoutController = Get.find<LayoutController>();
-
+                                  final layoutController =
+                                  Get.find<LayoutController>();
                                   layoutController.playSong(
                                     Song(
                                       title: item['title'] ?? 'No title',
@@ -172,7 +196,6 @@ class DiscoverView extends GetView<DiscoverController> {
                                       audioUrl: item['audio_url'] ?? '',
                                     ),
                                   );
-
                                   Get.to(() => const PlayMusicView());
                                 },
                                 child: ListTile(
@@ -195,11 +218,13 @@ class DiscoverView extends GetView<DiscoverController> {
                                   ),
                                   title: Text(
                                     item['title'] ?? 'No title',
-                                    style: defaultTextStyle.copyWith(fontWeight: FontWeight.bold),
+                                    style: defaultTextStyle.copyWith(
+                                        fontWeight: FontWeight.bold),
                                   ),
                                   subtitle: Text(
                                     item['description'] ?? '',
-                                    style: defaultTextStyle.copyWith(color: Colors.white70),
+                                    style: defaultTextStyle.copyWith(
+                                        color: Colors.white70),
                                   ),
                                 ),
                               );
@@ -210,7 +235,6 @@ class DiscoverView extends GetView<DiscoverController> {
                     ),
                   ),
                 ),
-
               ],
             ),
           ),
@@ -225,7 +249,8 @@ class DiscoverView extends GetView<DiscoverController> {
       padding: const EdgeInsets.all(16),
       child: Text(
         title,
-        style: defaultTextStyle.copyWith(fontSize: 20, fontWeight: FontWeight.bold),
+        style:
+        defaultTextStyle.copyWith(fontSize: 20, fontWeight: FontWeight.bold),
       ),
     );
   }
@@ -237,33 +262,29 @@ class DiscoverView extends GetView<DiscoverController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Stack(
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: Image.network(
-                  item['image_url'] ?? '',
-                  width: 160,
-                  height: 160,
-                  fit: BoxFit.cover,
-                  filterQuality: FilterQuality.high,
-                  errorBuilder: (context, error, stackTrace) =>
-                      Container(
-                        width: 160,
-                        height: 160,
-                        color: Colors.grey[300],
-                        child: const Center(
-                          child: Icon(Icons.image, size: 48, color: Colors.grey),
-                        ),
-                      ),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: Image.network(
+              item['image_url'] ?? '',
+              width: 160,
+              height: 160,
+              fit: BoxFit.cover,
+              filterQuality: FilterQuality.high,
+              errorBuilder: (context, error, stackTrace) => Container(
+                width: 160,
+                height: 160,
+                color: Colors.grey[300],
+                child: const Center(
+                  child: Icon(Icons.image, size: 48, color: Colors.grey),
                 ),
               ),
-            ],
+            ),
           ),
           const SizedBox(height: 8),
           Text(
             item['title'] ?? 'No title',
-            style: defaultTextStyle.copyWith(fontWeight: FontWeight.bold, fontSize: 14),
+            style: defaultTextStyle.copyWith(
+                fontWeight: FontWeight.bold, fontSize: 14),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
@@ -284,7 +305,6 @@ class DiscoverView extends GetView<DiscoverController> {
     return GestureDetector(
       onTap: () {
         final layoutController = Get.find<LayoutController>();
-
         layoutController.playSong(
           Song(
             title: item['title'] ?? 'No title',
@@ -293,8 +313,7 @@ class DiscoverView extends GetView<DiscoverController> {
             audioUrl: item['audio_url'] ?? '',
           ),
         );
-
-        Get.to(() => PlayMusicView());
+        Get.to(() => const PlayMusicView());
       },
       child: Container(
         width: 180,
@@ -302,7 +321,6 @@ class DiscoverView extends GetView<DiscoverController> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Ảnh bài hát
             ClipRRect(
               borderRadius: BorderRadius.circular(16),
               child: Image.network(
@@ -322,16 +340,13 @@ class DiscoverView extends GetView<DiscoverController> {
               ),
             ),
             const SizedBox(height: 8),
-
-            // Tên bài
             Text(
               item['title'] ?? 'No title',
-              style: defaultTextStyle.copyWith(fontWeight: FontWeight.bold, fontSize: 14),
+              style: defaultTextStyle.copyWith(
+                  fontWeight: FontWeight.bold, fontSize: 14),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
-
-            // Thời lượng
             Text(
               (item['duration'] != null ? '${item['duration']} min' : ''),
               style: defaultTextStyle.copyWith(
@@ -347,7 +362,6 @@ class DiscoverView extends GetView<DiscoverController> {
   }
 }
 
-// Custom rounded rectangle tab indicator
 class RoundedRectangleTabIndicator extends Decoration {
   final Color color;
   final double weight;
@@ -370,7 +384,8 @@ class RoundedRectangleTabIndicator extends Decoration {
 class _RoundedRectanglePainter extends BoxPainter {
   final RoundedRectangleTabIndicator decoration;
 
-  _RoundedRectanglePainter(this.decoration, VoidCallback? onChanged) : super(onChanged);
+  _RoundedRectanglePainter(this.decoration, VoidCallback? onChanged)
+      : super(onChanged);
 
   @override
   void paint(Canvas canvas, Offset offset, ImageConfiguration configuration) {
@@ -381,10 +396,13 @@ class _RoundedRectanglePainter extends BoxPainter {
     final double indicatorWidth = configuration.size!.width;
     final double indicatorHeight = decoration.weight;
     final double left = offset.dx;
-    final double top = offset.dy + configuration.size!.height - indicatorHeight;
+    final double top =
+        offset.dy + configuration.size!.height - indicatorHeight;
 
-    final Rect rect = Rect.fromLTWH(left, top, indicatorWidth, indicatorHeight);
-    final RRect rRect = RRect.fromRectAndRadius(rect, Radius.circular(decoration.radius));
+    final Rect rect =
+    Rect.fromLTWH(left, top, indicatorWidth, indicatorHeight);
+    final RRect rRect =
+    RRect.fromRectAndRadius(rect, Radius.circular(decoration.radius));
     canvas.drawRRect(rRect, paint);
   }
 }

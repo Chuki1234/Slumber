@@ -30,8 +30,8 @@ class DailyView extends GetView<DailyController> {
 
   List<Widget> buildDateSelector() {
     final today = DateTime.now();
-    final weekStart = today.subtract(Duration(days: today.weekday - 1));
-    return List.generate(7, (i) {
+    final weekStart = today.subtract(Duration(days: today.weekday +1));
+    return List.generate(30, (i) {
       final date = weekStart.add(Duration(days: i));
       final isSelected =
           controller.selectedDate.value.day == date.day &&
