@@ -85,6 +85,14 @@ class _DiscoverViewState extends State<DiscoverView> with SingleTickerProviderSt
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Get.back(),
         ),
+        title: Align(
+          alignment: Alignment.centerLeft,
+          child: Text(
+            "Sound and Music",
+            style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+          ),
+        ),
+        centerTitle: true,
       )
           : null,
       body: Stack(
