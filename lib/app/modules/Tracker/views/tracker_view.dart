@@ -17,7 +17,7 @@ class TrackerView extends StatefulWidget {
 
 class _TrackerViewState extends State<TrackerView> {
   final controller = Get.find<SleepTrackerController>();
-  final musicController = Get.find<LayoutController>(); // thêm dòng này ở đầu build()
+  final musicController = Get.find<LayoutController>();
 
   final RxString time = ''.obs;
   final RxString date = ''.obs;
@@ -44,13 +44,13 @@ class _TrackerViewState extends State<TrackerView> {
     date.value = "${_getWeekday(now.weekday)}, ${_getMonth(now.month)} ${now.day}";
   }
 
-  String _getWeekday(int weekday) => ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][weekday - 1];
-  String _getMonth(int m) => ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][m - 1];
+  String _getWeekday(int weekday) => ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][weekday - 1];
+  String _getMonth(int m) => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][m - 1];
 
   void _startHold() {
     _isHolding = true;
     _holdTimer = Timer(const Duration(seconds: 1), () {
-      if (_isHolding) Get.back(); // Quay về SleeptrackerView
+      if (_isHolding) Get.back();
     });
   }
 
@@ -69,7 +69,7 @@ class _TrackerViewState extends State<TrackerView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Colors.white,
       body: Stack(
         fit: StackFit.expand,
         children: [
@@ -103,38 +103,41 @@ class _TrackerViewState extends State<TrackerView> {
                   ),
                 ),
                 const SizedBox(height: 48),
-
                 Obx(() => Column(
                   children: [
-                    Text(time.value,
-                        style: const TextStyle(fontSize: 64, color: Colors.white, fontWeight: FontWeight.bold)),
+                    Text(
+                      time.value,
+                      style: const TextStyle(fontSize: 64, color: Colors.white, fontWeight: FontWeight.bold),
+                    ),
                     const SizedBox(height: 8),
-                    Text(date.value,
-                        style: const TextStyle(fontSize: 16, color: Colors.white70)),
+                    Text(
+                      date.value,
+                      style: const TextStyle(fontSize: 16, color: Colors.white70),
+                    ),
                   ],
                 )),
-
                 const Spacer(),
-
-                // Options
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: Column(
                     children: [
-
-                  _optionTile(
-                  icon: Icons.music_note,
-                  label: "Sound & Music",
-                  subtitle: Obx(() {
-                    final song = musicController.currentSong.value;
-                    return Text(
-                      song != null ? song.title : "No song playing",
-                      style: const TextStyle(color: Colors.white60, fontSize: 14),
-                    );
-                  }),
-                  trailingColor: Colors.grey,
-                  onTap: () => Get.to(() => DiscoverView(fromTracker: true), binding: DiscoverBinding()),
-                ),
+                      _optionTile(
+                        icon: Icons.music_note,
+                        label: "Sound & Music",
+                        subtitle: Obx(() {
+                          final song = musicController.currentSong.value;
+                          return Text(
+                            song != null ? song.title : "No song playing",
+                            style: const TextStyle(color: Colors.white60, fontSize: 14),
+                          );
+                        }),
+                        trailingColor: Colors.grey,
+                        onTap: () {
+                          Future.delayed(const Duration(milliseconds: 100), () {
+                            Get.to(() =>  DiscoverView(fromTracker: true), binding: DiscoverBinding());
+                          });
+                        },
+                      ),
                       const Divider(color: Colors.white30),
                       _optionTile(
                         icon: Icons.alarm,
@@ -177,9 +180,7 @@ class _TrackerViewState extends State<TrackerView> {
                     ],
                   ),
                 ),
-
                 const SizedBox(height: 32),
-
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: Column(
@@ -202,12 +203,13 @@ class _TrackerViewState extends State<TrackerView> {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      const Text("Long press to wake up",
-                          style: TextStyle(color: Colors.white60, fontSize: 18)),
+                      const Text(
+                        "Long press to wake up",
+                        style: TextStyle(color: Colors.white60, fontSize: 18),
+                      ),
                     ],
                   ),
                 ),
-
                 const SizedBox(height: 24),
               ],
             ),

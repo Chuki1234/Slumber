@@ -37,12 +37,12 @@ class LayoutView extends GetView<LayoutController> {
                         borderRadius: BorderRadius.circular(6),
                         child: Image.network(
                           controller.currentSong.value!.imageUrl,
-                          width: 40,
-                          height: 40,
+                          width: 55,
+                          height: 55,
                           fit: BoxFit.cover,
                           errorBuilder: (_, __, ___) => Container(
-                            width: 40,
-                            height: 40,
+                            width: 55,
+                            height: 55,
                             color: Colors.grey,
                             child: const Icon(Icons.music_note, color: Colors.white54),
                           ),
