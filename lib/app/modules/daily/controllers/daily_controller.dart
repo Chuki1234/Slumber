@@ -18,6 +18,7 @@ class DailyController extends GetxController {
   final date = ''.obs;
   final time = ''.obs;
   final selectedDate = Rx<DateTime>(DateTime.now());
+  final RxInt weekOffset = 0.obs;
 
   final availableTags = [
     {'emoji': '🤕', 'label': 'Pain'},

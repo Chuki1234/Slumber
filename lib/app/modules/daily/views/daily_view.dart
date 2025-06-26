@@ -30,47 +30,49 @@ class DailyView extends GetView<DailyController> {
 
   List<Widget> buildDateSelector() {
     final today = DateTime.now();
-    final weekStart = today.subtract(Duration(days: today.weekday +1));
-    return List.generate(30, (i) {
-      final date = weekStart.add(Duration(days: i));
-      final isSelected =
-          controller.selectedDate.value.day == date.day &&
+    final baseDate = today.subtract(Duration(days: today.weekday - 1));
+    final startDate = baseDate.add(Duration(days: controller.weekOffset.value * 7));
+
+    return List.generate(7, (i) {
+      final date = startDate.add(Duration(days: i));
+      final isSelected = controller.selectedDate.value.day == date.day &&
           controller.selectedDate.value.month == date.month &&
           controller.selectedDate.value.year == date.year;
 
-      return GestureDetector(
-        onTap: () {
-          controller.selectedDate.value = date;
-          controller.loadDiaryForDate(date);
-        },
-        child: Container(
-          width: 50,
-          margin: const EdgeInsets.symmetric(horizontal: 3),
-          padding: const EdgeInsets.symmetric(vertical: 7),
-          decoration: BoxDecoration(
-            color: isSelected ? Colors.transparent : Colors.white12,
-            borderRadius: BorderRadius.circular(12),
-            border:
-                isSelected
-                    ? Border.all(color: Colors.cyanAccent, width: 1.5)
-                    : null,
-          ),
+      return Container(
+        width: 56,
+        height: 64,
+        margin: const EdgeInsets.symmetric(horizontal: 5),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.white24 : Colors.white10,
+          borderRadius: BorderRadius.circular(16),
+          border: isSelected
+              ? Border.all(color: Colors.cyanAccent, width: 2.5)
+              : Border.all(color: Colors.transparent),
+        ),
+        child: GestureDetector(
+          onTap: () {
+            controller.selectedDate.value = date;
+            controller.loadDiaryForDate(date);
+          },
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                DateFormat('EEE').format(date).toUpperCase(),
+                DateFormat('EEE').format(date).toUpperCase(), // THU
                 style: const TextStyle(
                   color: Colors.white70,
-                  fontSize: 12,
-                  fontFamily: 'Roboto',
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
+              const SizedBox(height: 4),
               Text(
                 '${date.day}',
                 style: const TextStyle(
                   color: Colors.white,
-                  fontSize: 14,
-                  fontFamily: 'Roboto',
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ],
@@ -102,9 +104,10 @@ class DailyView extends GetView<DailyController> {
                       const Text(
                         'Today',
                         style: TextStyle(
-                          color: Colors.white70,
-                          fontSize: 16,
+                          color: Colors.white,
+                          fontSize: 24,
                           fontFamily: 'Roboto',
+                          fontWeight: FontWeight.bold
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -141,10 +144,74 @@ class DailyView extends GetView<DailyController> {
                             children: [
                               const SizedBox(height: 8),
                               SizedBox(
-                                height: 64,
-                                child: ListView(
-                                  scrollDirection: Axis.horizontal,
-                                  children: buildDateSelector(),
+                                height: 76,
+                                child: LayoutBuilder(
+                                  builder: (context, constraints) {
+                                    final boxWidth = (constraints.maxWidth - 6 * 8) / 7; // 6 khoảng spacing x 8px
+
+                                    return PageView.builder(
+                                      controller: PageController(viewportFraction: 1),
+                                      onPageChanged: (index) {
+                                        controller.weekOffset.value = index;
+                                      },
+                                      itemBuilder: (context, index) {
+                                        final weekOffset = index;
+                                        final today = DateTime.now();
+                                        final baseDate = today.subtract(Duration(days: today.weekday - 1));
+                                        final startDate = baseDate.add(Duration(days: weekOffset * 7));
+
+                                        return Obx(() => Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: List.generate(7, (i) {
+                                            final date = startDate.add(Duration(days: i));
+                                            final isSelected = controller.selectedDate.value.day == date.day &&
+                                                controller.selectedDate.value.month == date.month &&
+                                                controller.selectedDate.value.year == date.year;
+
+                                            return GestureDetector(
+                                              onTap: () {
+                                                controller.selectedDate.value = date;
+                                                controller.loadDiaryForDate(date);
+                                              },
+                                              child: Container(
+                                                width: boxWidth,
+                                                height: 64,
+                                                decoration: BoxDecoration(
+                                                  color: isSelected ? Colors.white24 : Colors.white10,
+                                                  borderRadius: BorderRadius.circular(16),
+                                                  border: isSelected
+                                                      ? Border.all(color: Colors.cyanAccent, width: 2)
+                                                      : null,
+                                                ),
+                                                child: Column(
+                                                  mainAxisAlignment: MainAxisAlignment.center,
+                                                  children: [
+                                                    Text(
+                                                      DateFormat('EEE').format(date).toUpperCase(),
+                                                      style: const TextStyle(
+                                                        color: Colors.white70,
+                                                        fontSize: 12,
+                                                        fontWeight: FontWeight.w500,
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 4),
+                                                    Text(
+                                                      '${date.day}',
+                                                      style: const TextStyle(
+                                                        color: Colors.white,
+                                                        fontSize: 18,
+                                                        fontWeight: FontWeight.bold,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            );
+                                          }),
+                                        ));
+                                      },
+                                    );
+                                  },
                                 ),
                               ),
                             ],
