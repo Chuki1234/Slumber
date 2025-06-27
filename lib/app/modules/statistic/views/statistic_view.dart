@@ -112,108 +112,91 @@ class StatisticView extends GetView<StatisticController> {
       double h = double.parse(parts[0]);
       double m = double.parse(parts[1]) / 60;
       if (h >= 18) h -= 24;
-      return h + m + 6;
+      return h + m + 6; // shift time range to positive axis
     }
 
-    double avgTime = data
-        .map((e) => parseTime(e['time']))
-        .reduce((a, b) => a + b) /
-        data.length;
+    double avgTime = data.map((e) => parseTime(e['time'])).reduce((a, b) => a + b) / data.length;
+    final earliest = data.reduce((a, b) => parseTime(a['time']) < parseTime(b['time']) ? a : b);
+    final latest = data.reduce((a, b) => parseTime(a['time']) > parseTime(b['time']) ? a : b);
 
-    final earliest = data.reduce((a, b) =>
-    parseTime(a['time']) < parseTime(b['time']) ? a : b);
-    final latest = data.reduce((a, b) =>
-    parseTime(a['time']) > parseTime(b['time']) ? a : b);
-
-    return Obx(
-          () => Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white10,
-          borderRadius: BorderRadius.circular(24),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Bedtime / Wake up time',
-              style: TextStyle(color: Colors.white70, fontSize: 16),
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                _toggleButton('Went to bed', true),
-                const SizedBox(width: 8),
-                _toggleButton('Woke up', false),
-                const Spacer(),
-                Text(
-                  'Avg ${_formatTime(avgTime)}',
+    return Obx(() => Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white10,
+        borderRadius: BorderRadius.circular(24),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Bedtime/Wake up time',
+              style: TextStyle(color: Colors.white70, fontSize: 16)),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              _toggleButton('Went to bed', true),
+              const SizedBox(width: 8),
+              _toggleButton('Woke up', false),
+              const Spacer(),
+              Text('Avg ${_formatTime(avgTime)}',
                   style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20,
+                      color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20)),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              _legendDot(color: Colors.orange),
+              Text(' Earliest ${earliest['time']}', style: const TextStyle(color: Colors.white)),
+              const SizedBox(width: 12),
+              _legendDot(color: Colors.cyan),
+              Text(' Latest ${latest['time']}', style: const TextStyle(color: Colors.white)),
+            ],
+          ),
+          const SizedBox(height: 16),
+          AspectRatio(
+            aspectRatio: 1.6,
+            child: LineChart(
+              LineChartData(
+                minX: 0,
+                maxX: 12,
+                minY: 0,
+                maxY: 6.5,
+                gridData: FlGridData(show: true),
+                titlesData: FlTitlesData(
+                  leftTitles: AxisTitles(
+                    sideTitles: SideTitles(showTitles: true, getTitlesWidget: (value, _) {
+                      const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                      return Text(days[value.toInt()],
+                          style: const TextStyle(color: Colors.white70, fontSize: 12));
+                    }, interval: 1),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                _legendDot(color: Colors.orange),
-                Text(' Earliest ${earliest['time']}'),
-                const SizedBox(width: 12),
-                _legendDot(color: Colors.cyan),
-                Text(' Latest ${latest['time']}'),
-              ],
-            ),
-            const SizedBox(height: 12),
-            AspectRatio(
-              aspectRatio: 1.5,
-              child: LineChart(
-                LineChartData(
-                  minX: 0,
-                  maxX: 12,
-                  minY: 0,
-                  maxY: 6,
-                  gridData: FlGridData(show: true),
-                  titlesData: FlTitlesData(
-                    leftTitles: AxisTitles(
-                      sideTitles: SideTitles(showTitles: true, getTitlesWidget: (value, _) {
-                        return Text(
-                          ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][value.toInt()],
-                          style: const TextStyle(color: Colors.white70, fontSize: 12),
-                        );
-                      }),
-                    ),
-                    bottomTitles: AxisTitles(
-                      sideTitles: SideTitles(showTitles: true, getTitlesWidget: (value, _) {
-                        return Text(
-                          _formatTime(value),
-                          style: const TextStyle(color: Colors.white54, fontSize: 10),
-                        );
-                      }),
-                    ),
-                    topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                    rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  bottomTitles: AxisTitles(
+                    sideTitles: SideTitles(showTitles: true, getTitlesWidget: (value, _) {
+                      return Text(_formatTime(value),
+                          style: const TextStyle(color: Colors.white54, fontSize: 10));
+                    }),
                   ),
-                  lineBarsData: [
-                    LineChartBarData(
-                      isCurved: false,
-                      color: Colors.cyanAccent,
-                      dotData: FlDotData(show: true),
-                      spots: List.generate(7, (i) {
-                        final t = parseTime(data[i]['time']);
-                        return FlSpot(t, i.toDouble());
-                      }),
-                    ),
-                  ],
+                  topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
                 ),
+                lineBarsData: [
+                  LineChartBarData(
+                    isCurved: false,
+                    color: Colors.cyanAccent,
+                    dotData: FlDotData(show: true),
+                    isStrokeCapRound: true,
+                    spots: List.generate(7, (i) {
+                      final t = parseTime(data[i]['time']);
+                      return FlSpot(t, i.toDouble());
+                    }),
+                  )
+                ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
-    );
+    ));
   }
 
   Widget _toggleButton(String text, bool isBedtime) {
