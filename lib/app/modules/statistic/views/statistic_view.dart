@@ -107,17 +107,24 @@ class StatisticView extends GetView<StatisticController> {
         ? controller.bedtimeData
         : controller.wakeupData;
 
+    const List<String> weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
     double parseTime(String time) {
       final parts = time.split(':');
       double h = double.parse(parts[0]);
       double m = double.parse(parts[1]) / 60;
-      if (h >= 18) h -= 24;
-      return h + m + 6; // shift time range to positive axis
+      if (h >= 18) h -= 24; // shift giờ từ 18h trở đi về đầu trục
+      return h + m + 6;
     }
 
-    double avgTime = data.map((e) => parseTime(e['time'])).reduce((a, b) => a + b) / data.length;
-    final earliest = data.reduce((a, b) => parseTime(a['time']) < parseTime(b['time']) ? a : b);
-    final latest = data.reduce((a, b) => parseTime(a['time']) > parseTime(b['time']) ? a : b);
+    // Lấy các giá trị thời gian hợp lệ
+    List<double> validTimes = data.map((e) => parseTime(e['time'])).toList();
+    double avgTime = validTimes.reduce((a, b) => a + b) / validTimes.length;
+
+    final earliest = data.reduce((a, b) =>
+    parseTime(a['time']) < parseTime(b['time']) ? a : b);
+    final latest = data.reduce((a, b) =>
+    parseTime(a['time']) > parseTime(b['time']) ? a : b);
 
     return Obx(() => Container(
       padding: const EdgeInsets.all(16),
@@ -160,36 +167,65 @@ class StatisticView extends GetView<StatisticController> {
                 minX: 0,
                 maxX: 12,
                 minY: 0,
-                maxY: 6.5,
-                gridData: FlGridData(show: true),
+                maxY: 6,
+                gridData: FlGridData(
+                  show: true,
+                  drawVerticalLine: true,
+                  drawHorizontalLine: true,
+                  horizontalInterval: 1,
+                  verticalInterval: 1,
+                  getDrawingHorizontalLine: (_) =>
+                      FlLine(color: Colors.white12, strokeWidth: 1),
+                  getDrawingVerticalLine: (_) =>
+                      FlLine(color: Colors.white12, strokeWidth: 1),
+                ),
                 titlesData: FlTitlesData(
                   leftTitles: AxisTitles(
-                    sideTitles: SideTitles(showTitles: true, getTitlesWidget: (value, _) {
-                      const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-                      return Text(days[value.toInt()],
-                          style: const TextStyle(color: Colors.white70, fontSize: 12));
-                    }, interval: 1),
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      interval: 1,
+                      reservedSize: 36,
+                      getTitlesWidget: (value, _) {
+                        if (value >= 0 && value < weekDays.length) {
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 4),
+                            child: Text(
+                              weekDays[value.toInt()],
+                              style: const TextStyle(color: Colors.white70, fontSize: 12),
+                            ),
+                          );
+                        } else {
+                          return const SizedBox.shrink();
+                        }
+                      },
+                    ),
                   ),
                   bottomTitles: AxisTitles(
-                    sideTitles: SideTitles(showTitles: true, getTitlesWidget: (value, _) {
-                      return Text(_formatTime(value),
-                          style: const TextStyle(color: Colors.white54, fontSize: 10));
-                    }),
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      interval: 1,
+                      reservedSize: 28,
+                      getTitlesWidget: (value, _) {
+                        return Text(_formatTime(value),
+                            style: const TextStyle(color: Colors.white54, fontSize: 10));
+                      },
+                    ),
                   ),
                   topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
                   rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
                 ),
+                borderData: FlBorderData(show: false),
                 lineBarsData: [
                   LineChartBarData(
-                    isCurved: false,
+                    isCurved: true,
                     color: Colors.cyanAccent,
                     dotData: FlDotData(show: true),
-                    isStrokeCapRound: true,
                     spots: List.generate(7, (i) {
-                      final t = parseTime(data[i]['time']);
+                      final time = data[i]['time'];
+                      final t = parseTime(time);
                       return FlSpot(t, i.toDouble());
                     }),
-                  )
+                  ),
                 ],
               ),
             ),

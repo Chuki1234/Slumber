@@ -105,18 +105,25 @@ class _AlarmViewState extends State<AlarmView> {
                             ),
                             icon: const Icon(Icons.access_time),
                             label: const Text("Change Time", style: TextStyle(fontSize: 16)),
-                            onPressed: () async {
-                              final newTime = await showTimePicker(
-                                context: context,
-                                initialTime: controller.alarmStart.value,
-                              );
-                              if (!context.mounted) return;
-                              if (newTime != null) {
-                                final alarmController = Get.find<AlarmController>();
-                                alarmController.updateAlarmTime(newTime);                    print("🕒 Đã cập nhật báo thức thành: ${newTime.hour}:${newTime.minute}");
+                              onPressed: () async {
+                                final newTime = await showTimePicker(
+                                  context: context,
+                                  initialTime: controller.alarmStart.value,
+                                );
+                                if (!context.mounted) return;
 
+                                if (newTime != null) {
+                                  // ✅ 1. Cập nhật vào AlarmController
+                                  final alarmController = Get.find<AlarmController>();
+                                  alarmController.updateAlarmTime(newTime);
+
+                                  // ✅ 2. Đồng bộ lại vào SleepTrackerController
+                                  controller.alarmStart.value = newTime;
+
+                                  print("🕒 Đã cập nhật báo thức thành: ${newTime.hour}:${newTime.minute}");
+                                }
                               }
-                            },
+
                           ),
                         ],
                       ),
@@ -256,8 +263,8 @@ class _AlarmViewState extends State<AlarmView> {
                   final offset = controller.smartAlarmOffsetMinutes.value;
                   final start = controller.alarmStart.value;
 
-                  final totalMin = start.hour * 60 + start.minute + offset;
-                  final end = TimeOfDay(hour: (totalMin ~/ 60) % 24, minute: totalMin % 60);
+                  final totalMin = (start.hour * 60 + start.minute - offset + 1440) % 1440;
+                  final startSmart = TimeOfDay(hour: totalMin ~/ 60, minute: totalMin % 60);
 
                   String format(TimeOfDay t) =>
                       '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
