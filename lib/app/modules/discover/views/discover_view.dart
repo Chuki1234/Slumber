@@ -4,7 +4,6 @@ import '../../layout/controllers/layout_controller.dart';
 import '../../play_music/views/play_music_view.dart';
 import '../controllers/discover_controller.dart';
 
-
 class DiscoverView extends GetView<DiscoverController> {
   final bool fromTracker;
   DiscoverView({Key? key, this.fromTracker = false}) : super(key: key);
@@ -124,8 +123,25 @@ class DiscoverView extends GetView<DiscoverController> {
                               padding: const EdgeInsets.symmetric(horizontal: 16),
                               physics: const BouncingScrollPhysics(),
                               itemCount: controller.soundsList.length,
-                              itemBuilder: (context, index) =>
-                                  _buildSoundCard(controller.soundsList[index]),
+                              itemBuilder: (context, index) => _buildSoundCard(
+                                controller.soundsList[index],
+                                onTap: () {
+                                  final layoutController = Get.find<LayoutController>();
+                                  final playlist = controller.soundsList
+                                      .map((e) => Song(
+                                    title: e['title'] ?? 'No title',
+                                    artist: e['description'] ?? '',
+                                    imageUrl: e['image_url'] ?? '',
+                                    audioUrl: e['audio_url'] ?? '',
+                                  ))
+                                      .toList();
+                                  layoutController.playSong(
+                                    playlist[index],
+                                    playlist: playlist,
+                                    index: index,
+                                  );
+                                },
+                              ),
                             );
                           }),
                         ),
@@ -142,8 +158,26 @@ class DiscoverView extends GetView<DiscoverController> {
                               padding: const EdgeInsets.symmetric(horizontal: 16),
                               physics: const BouncingScrollPhysics(),
                               itemCount: controller.musicList.length,
-                              itemBuilder: (context, index) =>
-                                  _buildMusicCard(controller.musicList[index]),
+                              itemBuilder: (context, index) => _buildMusicCard(
+                                controller.musicList[index],
+                                onTap: () {
+                                  final layoutController = Get.find<LayoutController>();
+                                  final playlist = controller.musicList
+                                      .map((e) => Song(
+                                    title: e['title'] ?? 'No title',
+                                    artist: e['description'] ?? '',
+                                    imageUrl: e['image_url'] ?? '',
+                                    audioUrl: e['audio_url'] ?? '',
+                                  ))
+                                      .toList();
+                                  layoutController.playSong(
+                                    playlist[index],
+                                    playlist: playlist,
+                                    index: index,
+                                  );
+                                  Get.to(() => PlayMusicView());
+                                },
+                              ),
                             );
                           }),
                         ),
@@ -163,16 +197,19 @@ class DiscoverView extends GetView<DiscoverController> {
                               return GestureDetector(
                                 onTap: () {
                                   final layoutController = Get.find<LayoutController>();
-
+                                  final playlist = controller.storiesList
+                                      .map((e) => Song(
+                                    title: e['title'] ?? 'No title',
+                                    artist: e['description'] ?? '',
+                                    imageUrl: e['image_url'] ?? '',
+                                    audioUrl: e['audio_url'] ?? '',
+                                  ))
+                                      .toList();
                                   layoutController.playSong(
-                                    Song(
-                                      title: item['title'] ?? 'No title',
-                                      artist: item['description'] ?? '',
-                                      imageUrl: item['image_url'] ?? '',
-                                      audioUrl: item['audio_url'] ?? '',
-                                    ),
+                                    playlist[index],
+                                    playlist: playlist,
+                                    index: index,
                                   );
-
                                   Get.to(() => const PlayMusicView());
                                 },
                                 child: ListTile(
@@ -210,7 +247,6 @@ class DiscoverView extends GetView<DiscoverController> {
                     ),
                   ),
                 ),
-
               ],
             ),
           ),
@@ -230,79 +266,68 @@ class DiscoverView extends GetView<DiscoverController> {
     );
   }
 
-  Widget _buildSoundCard(Map<String, dynamic> item) {
-    return Container(
-      width: 200,
-      margin: const EdgeInsets.only(right: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Stack(
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: Image.network(
-                  item['image_url'] ?? '',
-                  width: 160,
-                  height: 160,
-                  fit: BoxFit.cover,
-                  filterQuality: FilterQuality.high,
-                  errorBuilder: (context, error, stackTrace) =>
-                      Container(
-                        width: 160,
-                        height: 160,
-                        color: Colors.grey[300],
-                        child: const Center(
-                          child: Icon(Icons.image, size: 48, color: Colors.grey),
+  Widget _buildSoundCard(Map<String, dynamic> item, {VoidCallback? onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 200,
+        margin: const EdgeInsets.only(right: 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Stack(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: Image.network(
+                    item['image_url'] ?? '',
+                    width: 160,
+                    height: 160,
+                    fit: BoxFit.cover,
+                    filterQuality: FilterQuality.high,
+                    errorBuilder: (context, error, stackTrace) =>
+                        Container(
+                          width: 160,
+                          height: 160,
+                          color: Colors.grey[300],
+                          child: const Center(
+                            child: Icon(Icons.image, size: 48, color: Colors.grey),
+                          ),
                         ),
-                      ),
+                  ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            item['title'] ?? 'No title',
-            style: defaultTextStyle.copyWith(fontWeight: FontWeight.bold, fontSize: 14),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-          Text(
-            item['description'] ?? '',
-            style: defaultTextStyle.copyWith(
-              color: Colors.white70,
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
+              ],
             ),
-          ),
-        ],
+            const SizedBox(height: 8),
+            Text(
+              item['title'] ?? 'No title',
+              style: defaultTextStyle.copyWith(fontWeight: FontWeight.bold, fontSize: 14),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            Text(
+              item['description'] ?? '',
+              style: defaultTextStyle.copyWith(
+                color: Colors.white70,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildMusicCard(Map<String, dynamic> item) {
+  Widget _buildMusicCard(Map<String, dynamic> item, {VoidCallback? onTap}) {
     return GestureDetector(
-      onTap: () {
-        final layoutController = Get.find<LayoutController>();
-
-        layoutController.playSong(
-          Song(
-            title: item['title'] ?? 'No title',
-            artist: item['description'] ?? '',
-            imageUrl: item['image_url'] ?? '',
-            audioUrl: item['audio_url'] ?? '',
-          ),
-        );
-
-        Get.to(() => PlayMusicView());
-      },
+      onTap: onTap,
       child: Container(
         width: 180,
         margin: const EdgeInsets.only(right: 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Ảnh bài hát
             ClipRRect(
               borderRadius: BorderRadius.circular(16),
               child: Image.network(
@@ -322,16 +347,12 @@ class DiscoverView extends GetView<DiscoverController> {
               ),
             ),
             const SizedBox(height: 8),
-
-            // Tên bài
             Text(
               item['title'] ?? 'No title',
               style: defaultTextStyle.copyWith(fontWeight: FontWeight.bold, fontSize: 14),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
-
-            // Thời lượng
             Text(
               (item['duration'] != null ? '${item['duration']} min' : ''),
               style: defaultTextStyle.copyWith(

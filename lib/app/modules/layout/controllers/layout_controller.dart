@@ -25,6 +25,9 @@ class LayoutController extends GetxController {
   final Rx<Song?> currentSong = Rx<Song?>(null);
   final RxBool isPlaying = false.obs;
 
+  final RxList<Song> currentPlaylist = <Song>[].obs;
+  final RxInt currentSongIndex = 0.obs;
+
   final AudioPlayer audioPlayer = AudioPlayer();
 
   // ✅ Thêm để hỗ trợ Slider và thời lượng
@@ -35,15 +38,14 @@ class LayoutController extends GetxController {
   void onInit() {
     super.onInit();
 
-    // Theo dõi trạng thái phát
     audioPlayer.playerStateStream.listen((state) {
       isPlaying.value = state.playing;
       if (state.processingState == ProcessingState.completed) {
         isPlaying.value = false;
+        skipNext();
       }
     });
 
-    // Theo dõi thời gian phát
     audioPlayer.positionStream.listen((pos) => position.value = pos);
     audioPlayer.durationStream.listen((dur) {
       if (dur != null) duration.value = dur;
@@ -54,21 +56,25 @@ class LayoutController extends GetxController {
     currentIndex.value = index;
   }
 
-  Future<void> playSong(Song song) async {
+  Future<void> playSong(Song song, {List<Song>? playlist, int? index}) async {
+    if (playlist != null) {
+      currentPlaylist.assignAll(playlist);
+      currentSongIndex.value = index ?? 0;
+    } else if (index != null) {
+      currentSongIndex.value = index;
+    } else if (currentPlaylist.isNotEmpty) {
+      currentSongIndex.value = currentPlaylist.indexWhere((s) => s.audioUrl == song.audioUrl);
+    } else {
+      currentPlaylist.assignAll([song]);
+      currentSongIndex.value = 0;
+    }
     currentSong.value = song;
     try {
       await audioPlayer.setUrl(song.audioUrl);
       await audioPlayer.play();
     } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Không thể phát nhạc: $e',
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
     }
   }
-
   void togglePlayPause() {
     if (audioPlayer.playing) {
       audioPlayer.pause();
@@ -88,11 +94,19 @@ class LayoutController extends GetxController {
   }
 
   void skipNext() {
-    // TODO: xử lý khi có playlist
+    if (currentPlaylist.isNotEmpty && currentSongIndex.value < currentPlaylist.length - 1) {
+      final nextIndex = currentSongIndex.value + 1;
+      currentSongIndex.value = nextIndex;
+      playSong(currentPlaylist[nextIndex]);
+    }
   }
 
   void skipPrevious() {
-    // TODO: xử lý khi có playlist
+    if (currentPlaylist.isNotEmpty && currentSongIndex.value > 0) {
+      final prevIndex = currentSongIndex.value - 1;
+      currentSongIndex.value = prevIndex;
+      playSong(currentPlaylist[prevIndex]);
+    }
   }
 
   @override
