@@ -360,8 +360,7 @@ class _AlarmViewState extends State<AlarmView> {
                         const SizedBox(height: 12),
 
                         Text(
-                          'The smart alarm will wake you up at the best time between '
-                              '${format(start)}${offset > 0 ? ' - ${format(end)}' : ''}',
+                          'The smart alarm will wake you up at the best time between ${format(startSmart)} - ${format(start)}',
                           style: const TextStyle(fontSize: 14, color: Colors.white70),
                         ),
                       ],

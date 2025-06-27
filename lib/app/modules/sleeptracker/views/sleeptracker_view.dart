@@ -183,16 +183,16 @@ class SleeptrackerView extends GetView<SleepTrackerController> {
                     ? controller.smartAlarmOffsetMinutes.value
                     : 0;
 
-                final totalMin = base.hour * 60 + base.minute + offset;
-                final extended = TimeOfDay(
-                  hour: (totalMin ~/ 60) % 24,
+                final totalMin = (base.hour * 60 + base.minute - offset + 1440) % 1440;
+                final smartStart = TimeOfDay(
+                  hour: totalMin ~/ 60,
                   minute: totalMin % 60,
                 );
 
                 final text = label == 'Alarm'
                     ? (offset == 0
                     ? _formatHM(base)
-                    : '${_formatHM(base)} - ${_formatHM(extended)}')
+                    : '${_formatHM(smartStart)} - ${_formatHM(base)}')
                     : _formatHM(base);
 
                 return Text(

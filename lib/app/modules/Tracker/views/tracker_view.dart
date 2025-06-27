@@ -207,12 +207,12 @@ class _TrackerViewState extends State<TrackerView> {
                           if (!isSmartOn || offset == 0) {
                             timeText = format(start);
                           } else {
-                            final totalMin = start.hour * 60 + start.minute + offset;
-                            final end = TimeOfDay(
-                              hour: (totalMin ~/ 60) % 24,
+                            final totalMin = (start.hour * 60 + start.minute - offset + 1440) % 1440;
+                            final smartStart = TimeOfDay(
+                              hour: totalMin ~/ 60,
                               minute: totalMin % 60,
                             );
-                            timeText = '${format(start)} - ${format(end)}';
+                            timeText = '${format(smartStart)} - ${format(start)}';
                           }
 
                           return Row(
