@@ -30,7 +30,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  fl_chart: ^0.67.0
+  fl_chart: ^1.0.0
   cupertino_icons: ^1.0.8
   get: ^4.7.2
   sleek_circular_slider: ^2.0.1

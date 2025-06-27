@@ -86,7 +86,7 @@ class DailyView extends GetView<DailyController> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
-        children: [
+         children: [
           Image.asset(
             'assets/images/Background.png',
             fit: BoxFit.cover,
@@ -106,8 +106,7 @@ class DailyView extends GetView<DailyController> {
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 24,
-                          fontFamily: 'Roboto',
-                          fontWeight: FontWeight.bold
+                          fontFamily: 'Roboto'
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -218,7 +217,7 @@ class DailyView extends GetView<DailyController> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 16),
                       const Text(
                         'Good night, hope you have a nice day <3',
                         textAlign: TextAlign.center,
@@ -229,13 +228,13 @@ class DailyView extends GetView<DailyController> {
                           fontFamily: 'Georama',
                         ),
                       ),
-                      const SizedBox(height: 32),
+                      const SizedBox(height: 16),
                       const Text(
                         'Sleep goal',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 22,
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w600,
                           fontFamily: 'Roboto',
                         ),
                       ),
@@ -336,7 +335,7 @@ class DailyView extends GetView<DailyController> {
                         'Diary',
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: 18,
+                          fontSize: 22,
                           fontWeight: FontWeight.w600,
                           fontFamily: 'Roboto',
                         ),

@@ -71,7 +71,7 @@ class AppPages {
     ),
     GetPage(
       name: _Paths.STATISTIC,
-      page: () => const StatisticView(),
+      page: () => StatisticView(),
       binding: StatisticBinding(),
     ),
     GetPage(
