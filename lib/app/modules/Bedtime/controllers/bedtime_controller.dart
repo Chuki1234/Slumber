@@ -15,10 +15,10 @@ class BedtimeController extends GetxController {
   // Timer kiểm tra định kỳ
   Timer? _reminderTimer;
 
-  // Trạng thái để tránh hiển thị nhiều lần cùng 1 phút
+  // Tránh nhắc nhở lặp lại trong cùng một phút
   TimeOfDay? _lastReminderShownAt;
 
-  /// Chọn giờ đi ngủ từ time picker
+  /// Chọn giờ đi ngủ
   void pickTime(BuildContext context) async {
     final newTime = await showTimePicker(
       context: context,
@@ -26,38 +26,48 @@ class BedtimeController extends GetxController {
     );
     if (newTime != null) {
       bedTime.value = newTime;
+      print('Giờ đi ngủ đã chọn: $newTime');
     }
   }
 
-  /// Cập nhật thời gian nhắc trước
+  /// Cập nhật khoảng thời gian nhắc
   void updateReminder(Duration duration) {
     remindBefore.value = duration;
+    print('Cập nhật remindBefore: ${duration.inMinutes} phút');
   }
 
-  /// Cập nhật trạng thái bật/tắt nhắc
+  /// Bật/tắt nhắc nhở
   void setReminderEnabled(bool enabled) {
     isReminderEnabled.value = enabled;
+    print('Nhắc nhở: ${enabled ? 'Bật' : 'Tắt'}');
   }
 
-  /// Bắt đầu kiểm tra giờ nhắc
+  /// Bắt đầu kiểm tra nhắc nhở
   void startReminderLoop(BuildContext context) {
     _reminderTimer?.cancel();
+
     _reminderTimer = Timer.periodic(const Duration(minutes: 1), (_) {
-      if (!isReminderEnabled.value) return;
+      if (!isReminderEnabled.value) {
+        print('Nhắc nhở đang tắt');
+        return;
+      }
 
       final now = TimeOfDay.now();
       final reminderTime = _getReminderTime();
 
-      // Chỉ hiển thị nếu trùng giờ và chưa hiện trong phút này
+      print('🕑 Bây giờ: ${now.format(context)} | Nhắc lúc: ${reminderTime.format(context)}');
+
       if (_isSameTime(reminderTime, now) &&
           !_isSameTime(_lastReminderShownAt, now)) {
         _lastReminderShownAt = now;
         _showReminderSnackbar(context);
       }
     });
+
+    print('🔁 Đã bắt đầu vòng kiểm tra nhắc nhở');
   }
 
-  /// Tính giờ nhắc trước giờ ngủ
+  /// Tính thời điểm cần nhắc
   TimeOfDay _getReminderTime() {
     final bed = bedTime.value;
     final totalMinutes = bed.hour * 60 + bed.minute;
@@ -66,26 +76,27 @@ class BedtimeController extends GetxController {
     return TimeOfDay(hour: adjusted ~/ 60, minute: adjusted % 60);
   }
 
-  /// So sánh 2 thời điểm giờ:phút
+  /// So sánh thời gian giờ-phút
   bool _isSameTime(TimeOfDay? t1, TimeOfDay? t2) {
     if (t1 == null || t2 == null) return false;
     return t1.hour == t2.hour && t1.minute == t2.minute;
   }
 
-  /// Hiển thị nhắc nhở dạng SnackBar
+  /// Hiển thị SnackBar nhắc nhở
   void _showReminderSnackbar(BuildContext context) {
     if (!context.mounted) return;
     Get.snackbar(
-      'Nhắc nhở đi ngủ',
+      '⏰ Nhắc nhở đi ngủ',
       'Đã đến giờ đi ngủ! Hãy chuẩn bị nghỉ ngơi.',
       snackPosition: SnackPosition.TOP,
       duration: const Duration(seconds: 3),
       backgroundColor: Colors.deepPurpleAccent,
       colorText: Colors.white,
     );
+    print('🔔 Đã hiển thị nhắc nhở đi ngủ');
   }
 
-  /// Hủy Timer khi dispose
+  /// Dọn dẹp timer khi dispose
   @override
   void onClose() {
     _reminderTimer?.cancel();

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../sleeptracker/controllers/sleeptracker_controller.dart';
+import '../controllers/bedtime_controller.dart';
 
 class BedtimeView extends StatefulWidget {
   const BedtimeView({super.key});
@@ -10,11 +11,23 @@ class BedtimeView extends StatefulWidget {
 }
 
 class _BedtimeViewState extends State<BedtimeView> {
+  final bedtimeController = Get.put(BedtimeController());
   final controller = Get.find<SleepTrackerController>();
   bool isReminderEnabled = true;
 
   int selectedRemindHours = 0;
   int selectedRemindMinutes = 30;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      bedtimeController.startReminderLoop(context);
+    });
+    bedtimeController.updateReminder(
+      Duration(hours: selectedRemindHours, minutes: selectedRemindMinutes),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -181,6 +194,7 @@ class _BedtimeViewState extends State<BedtimeView> {
                                       inactiveTrackColor: Colors.grey.shade700,
                                       onChanged: (val) {
                                         setState(() => isReminderEnabled = val);
+                                        bedtimeController.setReminderEnabled(val);
                                       },
                                     ),
                                   ],
@@ -307,6 +321,12 @@ class _BedtimeViewState extends State<BedtimeView> {
                             selectedRemindHours = tempHour;
                             selectedRemindMinutes = tempMinute;
                           });
+
+                          // Gửi dữ liệu về controller
+                          final bedtimeController = Get.find<BedtimeController>();
+                          final newDuration = Duration(hours: tempHour, minutes: tempMinute);
+                          bedtimeController.updateReminder(newDuration);
+
                           Navigator.pop(context);
                         },
                         style: ElevatedButton.styleFrom(
