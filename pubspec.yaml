@@ -49,6 +49,7 @@ dependencies:
   flutter_bluetooth_serial: ^0.4.0
   device_info_plus: ^10.0.1
   permission_handler: ^11.0.1
+  assets_audio_player: ^3.0.6
 
 dev_dependencies:
   flutter_test:
@@ -77,6 +78,7 @@ flutter:
     - assets/images/google.png
     - assets/images/Slumber_logo.png
     - assets/images/Logo.png
+    - assets/sounds/bedtime_alert.mp3
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

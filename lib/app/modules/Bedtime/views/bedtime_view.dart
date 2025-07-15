@@ -1,3 +1,4 @@
+import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../sleeptracker/controllers/sleeptracker_controller.dart';
@@ -26,6 +27,7 @@ class _BedtimeViewState extends State<BedtimeView> {
     });
     bedtimeController.updateReminder(
       Duration(hours: selectedRemindHours, minutes: selectedRemindMinutes),
+      context,
     );
   }
 
@@ -67,7 +69,7 @@ class _BedtimeViewState extends State<BedtimeView> {
                     child: Column(
                       children: [
                         Obx(() {
-                          final time = controller.bedTime.value;
+                          final time = bedtimeController.bedTime.value;
                           final hour = time.hour.toString().padLeft(2, '0');
                           final minute = time.minute.toString().padLeft(2, '0');
                           return Container(
@@ -115,8 +117,9 @@ class _BedtimeViewState extends State<BedtimeView> {
                                     );
                                     if (!context.mounted) return;
                                     if (newTime != null) {
-                                      controller.updateBedTime(newTime);
+                                      bedtimeController.updateBedTime(newTime, context); // ✅ Gọi đúng
                                     }
+
                                   },
                                 ),
                               ],
@@ -315,7 +318,9 @@ class _BedtimeViewState extends State<BedtimeView> {
                         ),
                         child: const Text("Cancel"),
                       ),
+
                       ElevatedButton(
+
                         onPressed: () {
                           setState(() {
                             selectedRemindHours = tempHour;
@@ -325,8 +330,7 @@ class _BedtimeViewState extends State<BedtimeView> {
                           // Gửi dữ liệu về controller
                           final bedtimeController = Get.find<BedtimeController>();
                           final newDuration = Duration(hours: tempHour, minutes: tempMinute);
-                          bedtimeController.updateReminder(newDuration);
-
+                          bedtimeController.updateReminder(newDuration, context);
                           Navigator.pop(context);
                         },
                         style: ElevatedButton.styleFrom(

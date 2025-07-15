@@ -1,3 +1,4 @@
+// ✅ PlayMusicView: kết hợp và tối ưu từ cả hai phiên bản
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../Tracker/views/tracker_view.dart';
@@ -45,34 +46,28 @@ class _PlayMusicViewState extends State<PlayMusicView>
 
     return Scaffold(
       backgroundColor: Colors.black,
-      body: Stack(
-        children: [
-          Obx(() {
-            final song = controller.currentSong.value;
-            return Positioned.fill(
-              child: song == null
-                  ? Container(color: Colors.black)
-                  : Image.network(
+      body: Obx(() {
+        final song = controller.currentSong.value;
+
+        if (song == null) {
+          return const Center(
+            child: Text('Không có bài hát nào đang phát',
+                style: TextStyle(color: Colors.white)),
+          );
+        }
+
+        return Stack(
+          children: [
+            Positioned.fill(
+              child: Image.network(
                 song.imageUrl,
                 fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) =>
-                    Container(color: Colors.black),
+                errorBuilder: (_, __, ___) => Container(color: Colors.black),
               ),
-            );
-          }),
-          Container(color: Colors.black.withOpacity(0.6)),
-          SafeArea(
-            child: Obx(() {
-              final song = controller.currentSong.value;
-
-              if (song == null) {
-                return const Center(
-                  child: Text('Không có bài hát nào đang phát',
-                      style: TextStyle(color: Colors.white)),
-                );
-              }
-
-              return Column(
+            ),
+            Container(color: Colors.black.withOpacity(0.6)),
+            SafeArea(
+              child: Column(
                 children: [
                   Align(
                     alignment: Alignment.topLeft,
@@ -92,7 +87,7 @@ class _PlayMusicViewState extends State<PlayMusicView>
                         width: MediaQuery.of(context).size.width * 0.85,
                         height: MediaQuery.of(context).size.width * 0.85,
                         fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => Container(
+                        errorBuilder: (_, __, ___) => Container(
                           width: 280,
                           height: 280,
                           color: Colors.grey[800],
@@ -131,8 +126,7 @@ class _PlayMusicViewState extends State<PlayMusicView>
                       child: Column(
                         children: [
                           Slider(
-                            value:
-                            pos.inSeconds.clamp(0, dur.inSeconds).toDouble(),
+                            value: pos.inSeconds.clamp(0, dur.inSeconds).toDouble(),
                             min: 0,
                             max: dur.inSeconds.toDouble(),
                             onChanged: (value) => controller.seekTo(value),
@@ -195,43 +189,36 @@ class _PlayMusicViewState extends State<PlayMusicView>
                   const SizedBox(height: 32),
                   Padding(
                     padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
-                    child: Align(
-                      alignment: Alignment.center,
-                      child: SizedBox(
-                        width: double.infinity,
-                        height: 56,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            Get.to(() => const TrackerView());
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(28),
-                            ),
-                            elevation: 0,
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+                    child: SizedBox(
+                      width: double.infinity,
+                      height: 56,
+                      child: ElevatedButton(
+                        onPressed: () => Get.to(() => const TrackerView()),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(28),
                           ),
-                          child: const Text(
-                            'Sleep now',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 20,
-                              fontFamily: 'Roboto',
-                              fontWeight: FontWeight.w700,
-                            ),
+                          elevation: 0,
+                        ),
+                        child: const Text(
+                          'Sleep now',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 24),
                 ],
-              );
-            }),
-          )
-        ],
-      ),
+              ),
+            )
+          ],
+        );
+      }),
     );
   }
 }

@@ -1,9 +1,10 @@
+// ✅ PlayMusicController (kết hợp) – quản lý phát nhạc độc lập từ URL
 import 'package:just_audio/just_audio.dart';
 import 'package:get/get.dart';
 
 class PlayMusicController extends GetxController {
-  late Map<String, dynamic> music;
-  late AudioPlayer player;
+  late final Map<String, dynamic> music;
+  late final AudioPlayer player;
 
   final RxBool isPlaying = false.obs;
   final Rx<Duration> position = Duration.zero.obs;
@@ -18,16 +19,20 @@ class PlayMusicController extends GetxController {
   }
 
   Future<void> _initPlayer() async {
-    await player.setUrl(music['audio_url'] ?? '');
+    try {
+      await player.setUrl(music['audio_url'] ?? '');
 
-    // Nghe position và duration stream
-    player.positionStream.listen((pos) => position.value = pos);
-    player.durationStream.listen((dur) {
-      if (dur != null) duration.value = dur;
-    });
-    player.playerStateStream.listen((state) {
-      isPlaying.value = state.playing;
-    });
+      // Lắng nghe các stream
+      player.positionStream.listen((pos) => position.value = pos);
+      player.durationStream.listen((dur) {
+        if (dur != null) duration.value = dur;
+      });
+      player.playerStateStream.listen((state) {
+        isPlaying.value = state.playing;
+      });
+    } catch (e) {
+      Get.snackbar('Error', 'Không thể phát nhạc: $e');
+    }
   }
 
   void playPause() {

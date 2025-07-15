@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../layout/controllers/layout_controller.dart';
 
-
 class DiscoverController extends GetxController with GetSingleTickerProviderStateMixin {
   late TabController tabController;
   final ScrollController scrollController = ScrollController();

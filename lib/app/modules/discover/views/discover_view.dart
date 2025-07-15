@@ -1,3 +1,4 @@
+// ✅ DiscoverView kết hợp - sử dụng StatefulWidget, giữ các cập nhật mới nhất
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../layout/controllers/layout_controller.dart';
@@ -85,7 +86,7 @@ class _DiscoverViewState extends State<DiscoverView> with SingleTickerProviderSt
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Get.back(),
         ),
-        title: Align(
+        title: const Align(
           alignment: Alignment.centerLeft,
           child: Text(
             "Sound and Music",
@@ -107,39 +108,28 @@ class _DiscoverViewState extends State<DiscoverView> with SingleTickerProviderSt
             child: Column(
               children: [
                 const SizedBox(height: 12),
-                Container(
-                  decoration: const BoxDecoration(
-                    border: Border(
-                      bottom: BorderSide(color: Colors.transparent, width: 0),
-                    ),
+                TabBar(
+                  controller: controller.tabController,
+                  labelColor: Colors.white,
+                  unselectedLabelColor: Colors.grey[400],
+                  labelStyle: defaultTextStyle.copyWith(fontWeight: FontWeight.bold, fontSize: 18),
+                  indicator: const RoundedRectangleTabIndicator(
+                    color: Colors.cyanAccent,
+                    weight: 3,
+                    width: 24,
+                    radius: 6,
                   ),
-                  child: TabBar(
-                    controller: controller.tabController,
-                    labelColor: Colors.white,
-                    unselectedLabelColor: Colors.grey[400],
-                    labelStyle: defaultTextStyle.copyWith(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                    ),
-                    indicator: const RoundedRectangleTabIndicator(
-                      color: Colors.cyanAccent,
-                      weight: 3,
-                      width: 24,
-                      radius: 6,
-                    ),
-                    indicatorSize: TabBarIndicatorSize.label,
-                    tabs: const [
-                      Tab(text: 'Sounds'),
-                      Tab(text: 'Music'),
-                      Tab(text: 'Stories'),
-                    ],
-                  ),
+                  indicatorSize: TabBarIndicatorSize.label,
+                  tabs: const [
+                    Tab(text: 'Sounds'),
+                    Tab(text: 'Music'),
+                    Tab(text: 'Stories'),
+                  ],
                 ),
                 Expanded(
                   child: SingleChildScrollView(
                     controller: controller.scrollController,
-                    padding: EdgeInsets.only(
-                        bottom: MediaQuery.of(context).padding.bottom + 60),
+                    padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom + 60),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -155,8 +145,7 @@ class _DiscoverViewState extends State<DiscoverView> with SingleTickerProviderSt
                               padding: const EdgeInsets.symmetric(horizontal: 16),
                               physics: const BouncingScrollPhysics(),
                               itemCount: controller.soundsList.length,
-                              itemBuilder: (context, index) =>
-                                  _buildSoundCard(controller.soundsList[index]),
+                              itemBuilder: (context, index) => _buildCard(controller.soundsList[index], index, controller.soundsList),
                             );
                           }),
                         ),
@@ -173,8 +162,7 @@ class _DiscoverViewState extends State<DiscoverView> with SingleTickerProviderSt
                               padding: const EdgeInsets.symmetric(horizontal: 16),
                               physics: const BouncingScrollPhysics(),
                               itemCount: controller.musicList.length,
-                              itemBuilder: (context, index) =>
-                                  _buildMusicCard(controller.musicList[index]),
+                              itemBuilder: (context, index) => _buildCard(controller.musicList[index], index, controller.musicList),
                             );
                           }),
                         ),
@@ -188,22 +176,19 @@ class _DiscoverViewState extends State<DiscoverView> with SingleTickerProviderSt
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
                             itemCount: controller.storiesList.length,
-                            separatorBuilder: (_, __) =>
-                            const Divider(color: Colors.white24),
+                            separatorBuilder: (_, __) => const Divider(color: Colors.white24),
                             itemBuilder: (context, index) {
                               final item = controller.storiesList[index];
                               return GestureDetector(
                                 onTap: () {
-                                  final layoutController =
-                                  Get.find<LayoutController>();
-                                  layoutController.playSong(
-                                    Song(
-                                      title: item['title'] ?? 'No title',
-                                      artist: item['description'] ?? '',
-                                      imageUrl: item['image_url'] ?? '',
-                                      audioUrl: item['audio_url'] ?? '',
-                                    ),
-                                  );
+                                  final layoutController = Get.find<LayoutController>();
+                                  final playlist = controller.storiesList.map((e) => Song(
+                                    title: e['title'] ?? 'No title',
+                                    artist: e['description'] ?? '',
+                                    imageUrl: e['image_url'] ?? '',
+                                    audioUrl: e['audio_url'] ?? '',
+                                  )).toList();
+                                  layoutController.playSong(playlist[index], playlist: playlist, index: index);
                                   Get.to(() => const PlayMusicView());
                                 },
                                 child: ListTile(
@@ -214,26 +199,16 @@ class _DiscoverViewState extends State<DiscoverView> with SingleTickerProviderSt
                                       width: 50,
                                       height: 50,
                                       fit: BoxFit.cover,
-                                      errorBuilder: (context, error, stackTrace) {
-                                        return Container(
-                                          width: 50,
-                                          height: 50,
-                                          color: Colors.blueGrey.shade700,
-                                          child: const Icon(Icons.image, color: Colors.white),
-                                        );
-                                      },
+                                      errorBuilder: (context, error, stackTrace) => Container(
+                                        width: 50,
+                                        height: 50,
+                                        color: Colors.blueGrey.shade700,
+                                        child: const Icon(Icons.image, color: Colors.white),
+                                      ),
                                     ),
                                   ),
-                                  title: Text(
-                                    item['title'] ?? 'No title',
-                                    style: defaultTextStyle.copyWith(
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                  subtitle: Text(
-                                    item['description'] ?? '',
-                                    style: defaultTextStyle.copyWith(
-                                        color: Colors.white70),
-                                  ),
+                                  title: Text(item['title'] ?? 'No title', style: defaultTextStyle.copyWith(fontWeight: FontWeight.bold)),
+                                  subtitle: Text(item['description'] ?? '', style: defaultTextStyle.copyWith(color: Colors.white70)),
                                 ),
                               );
                             },
@@ -255,72 +230,22 @@ class _DiscoverViewState extends State<DiscoverView> with SingleTickerProviderSt
     return Container(
       key: key,
       padding: const EdgeInsets.all(16),
-      child: Text(
-        title,
-        style:
-        defaultTextStyle.copyWith(fontSize: 20, fontWeight: FontWeight.bold),
-      ),
+      child: Text(title, style: defaultTextStyle.copyWith(fontSize: 20, fontWeight: FontWeight.bold)),
     );
   }
 
-  Widget _buildSoundCard(Map<String, dynamic> item) {
-    return Container(
-      width: 200,
-      margin: const EdgeInsets.only(right: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(16),
-            child: Image.network(
-              item['image_url'] ?? '',
-              width: 160,
-              height: 160,
-              fit: BoxFit.cover,
-              filterQuality: FilterQuality.high,
-              errorBuilder: (context, error, stackTrace) => Container(
-                width: 160,
-                height: 160,
-                color: Colors.grey[300],
-                child: const Center(
-                  child: Icon(Icons.image, size: 48, color: Colors.grey),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            item['title'] ?? 'No title',
-            style: defaultTextStyle.copyWith(
-                fontWeight: FontWeight.bold, fontSize: 14),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-          Text(
-            item['description'] ?? '',
-            style: defaultTextStyle.copyWith(
-              color: Colors.white70,
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  Widget _buildCard(Map<String, dynamic> item, int index, List<Map<String, dynamic>> list) {
+    final layoutController = Get.find<LayoutController>();
+    final playlist = list.map((e) => Song(
+      title: e['title'] ?? 'No title',
+      artist: e['description'] ?? '',
+      imageUrl: e['image_url'] ?? '',
+      audioUrl: e['audio_url'] ?? '',
+    )).toList();
 
-  Widget _buildMusicCard(Map<String, dynamic> item) {
     return GestureDetector(
       onTap: () {
-        final layoutController = Get.find<LayoutController>();
-        layoutController.playSong(
-          Song(
-            title: item['title'] ?? 'No title',
-            artist: item['description'] ?? '',
-            imageUrl: item['image_url'] ?? '',
-            audioUrl: item['audio_url'] ?? '',
-          ),
-        );
+        layoutController.playSong(playlist[index], playlist: playlist, index: index);
         Get.to(() => const PlayMusicView());
       },
       child: Container(
@@ -341,28 +266,17 @@ class _DiscoverViewState extends State<DiscoverView> with SingleTickerProviderSt
                   width: 180,
                   height: 140,
                   color: Colors.grey[300],
-                  child: const Center(
-                    child: Icon(Icons.broken_image, size: 40, color: Colors.grey),
-                  ),
+                  child: const Center(child: Icon(Icons.broken_image, size: 40, color: Colors.grey)),
                 ),
               ),
             ),
             const SizedBox(height: 8),
-            Text(
-              item['title'] ?? 'No title',
-              style: defaultTextStyle.copyWith(
-                  fontWeight: FontWeight.bold, fontSize: 14),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-            Text(
-              (item['duration'] != null ? '${item['duration']} min' : ''),
-              style: defaultTextStyle.copyWith(
-                color: Colors.white70,
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
+            Text(item['title'] ?? 'No title',
+                style: defaultTextStyle.copyWith(fontWeight: FontWeight.bold, fontSize: 14),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis),
+            Text(item['description'] ?? '',
+                style: defaultTextStyle.copyWith(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.w600)),
           ],
         ),
       ),
@@ -376,41 +290,27 @@ class RoundedRectangleTabIndicator extends Decoration {
   final double width;
   final double radius;
 
-  const RoundedRectangleTabIndicator({
-    required this.color,
-    required this.weight,
-    required this.width,
-    required this.radius,
-  });
+  const RoundedRectangleTabIndicator({required this.color, required this.weight, required this.width, required this.radius});
 
   @override
-  BoxPainter createBoxPainter([VoidCallback? onChanged]) {
-    return _RoundedRectanglePainter(this, onChanged);
-  }
+  BoxPainter createBoxPainter([VoidCallback? onChanged]) => _RoundedRectanglePainter(this, onChanged);
 }
 
 class _RoundedRectanglePainter extends BoxPainter {
   final RoundedRectangleTabIndicator decoration;
 
-  _RoundedRectanglePainter(this.decoration, VoidCallback? onChanged)
-      : super(onChanged);
+  _RoundedRectanglePainter(this.decoration, VoidCallback? onChanged) : super(onChanged);
 
   @override
   void paint(Canvas canvas, Offset offset, ImageConfiguration configuration) {
-    final Paint paint = Paint();
-    paint.color = decoration.color;
-    paint.style = PaintingStyle.fill;
-
-    final double indicatorWidth = configuration.size!.width;
-    final double indicatorHeight = decoration.weight;
-    final double left = offset.dx;
-    final double top =
-        offset.dy + configuration.size!.height - indicatorHeight;
-
-    final Rect rect =
-    Rect.fromLTWH(left, top, indicatorWidth, indicatorHeight);
-    final RRect rRect =
-    RRect.fromRectAndRadius(rect, Radius.circular(decoration.radius));
+    final paint = Paint()..color = decoration.color..style = PaintingStyle.fill;
+    final rect = Rect.fromLTWH(
+      offset.dx,
+      offset.dy + configuration.size!.height - decoration.weight,
+      configuration.size!.width,
+      decoration.weight,
+    );
+    final rRect = RRect.fromRectAndRadius(rect, Radius.circular(decoration.radius));
     canvas.drawRRect(rRect, paint);
   }
 }
