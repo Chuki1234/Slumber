@@ -98,6 +98,15 @@ class LayoutView extends GetView<LayoutController> {
                           ),
                           const SizedBox(width: 8),
                           _buildControlIcon(Icons.skip_next, controller.skipNext),
+                          const SizedBox(width: 8),
+                          GestureDetector(
+                            onTap: controller.stop, // <== Ngắt nhạc và ẩn mini player
+                            child: const Icon(
+                              Icons.close,
+                              color: Colors.white70,
+                              size: 22,
+                            ),
+                          ),
                         ],
                       ),
                     ],
